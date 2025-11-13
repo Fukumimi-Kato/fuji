@@ -1,0 +1,480 @@
+{% load static %}
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Cache-Control" content="no-cache">
+        <!-- App favicon -->
+
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+        <!-- third party css -->
+        <link href="{% static 'libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'libs/datatables.net-select-bs5/css/select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+        <!-- third party css end -->
+
+        <!-- plugin css -->
+        <link href="{% static 'libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- App css -->
+        <link href="{% static 'css/material/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+        <link href="{% static 'css/material/app.min.css' %}" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+
+        <link href="{% static 'css/material/bootstrap-dark.min.css' %}" rel="stylesheet" type="text/css" id="bs-dark-stylesheet" />
+        <link href="{% static 'css/material/app-dark.min.css' %}" rel="stylesheet" type="text/css" id="app-dark-stylesheet" />
+
+        <!-- icons -->
+        <link href="{% static 'css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+        <!-- My style -->
+        <link href="{% static 'css/mystyle.css' %}" rel="stylesheet">
+
+        <title>{% block title %}{% endblock %}</title>
+
+        {% block script %}{% endblock %}
+    </head>
+
+    <!-- body start -->
+    <body class="loading" data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}' onload="Jump()">
+
+        <!-- Begin page -->
+        <div id="wrapper">
+
+            <!-- Topbar Start -->
+            <div class="navbar-custom">
+                <div class="container-fluid">
+
+                    <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                        <li class="dropdown notification-list topbar-dropdown">
+                            <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                                <!--<img src="{% static 'images/users/avatar-1.jpg' %}" alt="user-image" class="rounded-circle">-->
+                                <span class="pro-user-name ms-1">
+                                    {{ user.facility_name }} 様<i class="mdi mdi-chevron-down"></i>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+
+                                <div class="dropdown-divider"></div>
+
+                                <a href="{% url 'account_change_password' %}" class="dropdown-item notify-item">
+                                    <i class="ri-key-2-line"></i>
+                                    <span>パスワード変更</span>
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+
+                                <a href="{% url 'account_logout' %}" class="dropdown-item notify-item">
+                                    <i class="ri-logout-box-line"></i>
+                                    <span>ログアウト</span>
+                                </a>
+
+                            </div>
+                        </li>
+
+                    </ul>
+
+                    <!-- LOGO -->
+                    <div class="logo-box">
+                    </div>
+
+                    <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
+                        <li>
+                            <button class="button-menu-mobile waves-effect waves-light">
+                                <i class="fe-menu"></i>
+                            </button>
+                        </li>
+
+                        <li>
+                            <!-- Mobile menu toggle (Horizontal Layout)-->
+                            <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
+                                <div class="lines">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </a>
+                            <!-- End mobile menu toggle-->
+                        </li>
+
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <!-- end Topbar -->
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="left-side-menu">
+
+                <!-- LOGO -->
+                <div class="logo-box">
+                </div>
+
+                <div class="h-100" data-simplebar>
+
+                    <!-- User box -->
+                    <div class="user-box text-center">
+                        <img src="{% static 'images/users/avatar-1.jpg' %}" alt="user-img" title="Mat Helme"
+                            class="rounded-circle avatar-md">
+                        <div class="dropdown">
+                            <a href="#" class="text-reset dropdown-toggle h5 mt-2 mb-1 d-block"
+                                data-bs-toggle="dropdown">{{ user.facility_name }} 様</a>
+                            <div class="dropdown-menu user-pro-dropdown">
+
+
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <i class="fe-user me-1"></i>
+                                    <span>My Account</span>
+                                </a>
+
+
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <i class="fe-settings me-1"></i>
+                                    <span>Settings</span>
+                                </a>
+
+
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <i class="fe-lock me-1"></i>
+                                    <span>Lock Screen</span>
+                                </a>
+
+
+                                <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                    <i class="fe-log-out me-1"></i>
+                                    <span>Logout</span>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Side menu -->
+                    <div id="sidebar-menu">
+
+                        <ul id="side-menu">
+
+                            <li>
+                                <a href="{% url 'web_order:master_index' %}">
+                                    <i class="mdi mdi-television-guide"></i>
+                                    <span> マスタメンテナンス </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer">
+                                    <i class="mdi mdi-television-guide"></i>
+                                    <span> 管理画面 </span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">契約関連</li>
+
+                            <li>
+                                <a href="{% url 'web_order:user_masters' %}">
+                                    <i class="mdi mdi-account-plus"></i>
+                                    <span> 施設登録 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:user_master_list' %}">
+                                    <i class="mdi mdi-account-edit"></i>
+                                    <span> 施設情報変更 </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'web_order:everyday_selling_list' %}">
+                                    <i class="mdi mdi-cart-check"></i>
+                                    <span> 販売固定商品 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:new_price_list' %}">
+                                    <i class="mdi mdi-cash-multiple"></i>
+                                    <span> 単価情報変更 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:tax_settings' %}">
+                                    <i class="mdi mdi-percent"></i>
+                                    <span> 税率の設定 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:sales_day_settings' %}">
+                                    <i class="mdi mdi-truck-delivery-outline"></i>
+                                    <span> 顧客別_売上日調整日数 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:stop_reservations' %}">
+                                    <i class="mdi mdi-account-cancel"></i>
+                                    <span> 注文停止・ログイン停止予約 </span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">注文</li>
+                            <li>
+                                <a href="{% url 'web_order:pre_order_settings' %}">
+                                    <i class="mdi mdi-calendar-arrow-left"></i>
+                                    <span> 仮注文_特別対応 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:order_maintenance' %}">
+                                    <i class="mdi mdi-clipboard-flow"></i>
+                                    <span> 注文データ_食数変更 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:rice_orders' %}">
+                                    <i class="mdi mdi-rice"></i>
+                                    <span> 注文データ_合数変更 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:long_holidays_list' %}">
+                                    <i class="mdi mdi-timetable"></i>
+                                    <span> 長期休暇設定 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:new_year_settings' %}">
+                                    <i class="mdi mdi-weather-sunset"></i>
+                                    <span> 元日注文設定 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:allergen_masters' %}">
+                                    <i class="mdi mdi-allergy"></i>
+                                    <span> アレルギー種類の設定 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:common_allergens' %}">
+                                    <i class="mdi mdi-note-plus"></i>
+                                    <span> 頻発アレルギーの設定 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:allergen_settings' %}">
+                                    <i class="mdi mdi-account-details"></i>
+                                    <span> 顧客別アレルギー設定 </span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">調理帳票出力</li>
+                            <li>
+                                <a href="{% url 'web_order:mix_rice_plates' %}">
+                                    <i class="mdi mdi-bowl-mix-outline"></i>
+                                    <span> 混ぜご飯の登録 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:mix_rice_packages' %}">
+                                    <i class="mdi mdi-package"></i>
+                                    <span> 混ぜご飯袋サイズ設定</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'web_order:raw_plates' %}">
+                                    <i class="mdi mdi-cube-outline"></i>
+                                    <span> 原体送り料理設定　</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">盛付指示書</li>
+                            <li>
+                                <a href="{% url 'web_order:setout_duration_setting' %}">
+                                    <i class="mdi mdi-inbox"></i>
+                                    <span> 盛付指示書表示停止・再開 </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'web_order:set_out_directions' %}">
+                                    <i class="mdi mdi-pencil-box-multiple-outline"></i>
+                                    <span> 献立定型文 </span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">献立資料管理</li>
+                            <li>
+                                <a href="{% url 'web_order:document_folders' %}">
+                                    <i class="mdi mdi-folder-cog-outline"></i>
+                                    <span> 顧客別_献立資料フォルダ設定 </span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">マニュアル</li>
+                            <li>
+                                <a href="{% url 'web_order:master_manuals_contract' %}">
+                                    <i class="mdi mdi-hand-pointing-right"></i>
+                                    <span> 契約 </span>
+                                </a>
+                                <a href="{% url 'web_order:master_manuals_order' %}">
+                                    <i class="mdi mdi-hand-pointing-right"></i>
+                                    <span> 注文 </span>
+                                </a>
+                                <a href="{% url 'web_order:master_manuals_direction' %}">
+                                    <i class="mdi mdi-hand-pointing-right"></i>
+                                    <span> 調理帳票出力 </span>
+                                </a>
+                                <a href="{% url 'web_order:master_manuals_setout' %}">
+                                    <i class="mdi mdi-hand-pointing-right"></i>
+                                    <span> 盛付指示書 </span>
+                                </a>
+                                <a href="{% url 'web_order:master_manuals_documents' %}">
+                                    <i class="mdi mdi-hand-pointing-right"></i>
+                                    <span> 献立資料 </span>
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
+                    <!-- End Sidebar -->
+
+                    <div class="clearfix"></div>
+
+                </div>
+                <!-- Sidebar -left -->
+
+            </div>
+            <!-- Left Sidebar End -->
+
+            <!-- ============================================================== -->
+            <!-- Start Page Content here -->
+            <!-- ============================================================== -->
+            <div class="content-page">
+                <div class="content">
+                    <!-- Start Content-->
+                    <div class="container-fluid">
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box page-title-box-alt">
+                                    <h3 class="page-title">
+                                        {% block overview %}{% endblock %}
+                                    </h3>
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="{% url 'web_order:master_index' %}">トップページ</a></li>
+                                            {% block breadcrumb %}{% endblock %}
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+                    </div> <!-- container -->
+
+                    {% block content %}{% endblock %}
+
+                </div> <!-- content -->
+
+                <!-- Footer Start -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <script>document.write(new Date().getFullYear())</script> &copy; <a href="http://www.dan1.jp">Dan Co.ltd</a>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-md-end footer-links d-none d-sm-block">
+                                    Ver.1.0.7 - admin
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- end Footer -->
+
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+        </div>
+        <!-- END wrapper -->
+
+        <!-- Standard modal content -->
+        <div id="standard-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="standard-modalLabel">注文方法のご案内</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>手順1</h6>
+                        <p>通常食を注文します</p>
+                        <hr>
+                        <h6>手順2</h6>
+                        <p>アレルギー対応をご希望の場合</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- Vendor js -->
+        <script src="{% static 'js/vendor.min.js' %}"></script>
+
+        <!-- third party js -->
+        <script src="{% static 'libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+        <script src="{% static 'libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/pdfmake.min.js' %}"></script>
+        <script src="{% static 'libs/pdfmake/build/vfs_fonts.js' %}"></script>
+        <!-- third party js ends -->
+
+        <!-- Datatables init -->
+        <script src="{% static 'js/pages/datatables.init.js' %}"></script>
+
+        <!-- KNOB JS -->
+        <script src="{% static 'libs/jquery-knob/jquery.knob.min.js' %}"></script>
+        <!-- Apex js-->
+        <script src="{% static 'libs/apexcharts/apexcharts.min.js' %}"></script>
+
+        <!-- Plugins js-->
+        <script src="{% static 'libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js' %}"></script>
+        <script src="{% static 'libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js' %}"></script>
+
+        <!-- Dashboard init-->
+        <script src="{% static 'js/pages/dashboard-sales.init.js' %}"></script>
+
+        <!-- App js -->
+        <script src="{% static 'js/app.min.js' %}"></script>
+        {% block scripts %}{% endblock %}
+
+    </body>
+</html>

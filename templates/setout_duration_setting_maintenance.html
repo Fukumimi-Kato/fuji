@@ -1,0 +1,87 @@
+{% extends 'base_master.html' %}
+{% load django_bootstrap5 %}
+{% load templatefilter %}
+
+{% block title %}盛付指示書表示停止・再開{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" xmlns="http://www.w3.org/1999/html">盛付指示書表示停止・再開</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">盛付指示書表示停止・再開</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid my-0">
+    <form method="GET">
+    <div class="card shadow mt-4 mb-3">
+        <div class="card-body px-4 mt-2 mb-0 d-flex flex-row">
+                <div class="col-3 px-1">
+                    {{ search_form.as_p }}
+                </div>
+                <div class="col-2 px-1">
+                </div>
+                <div class="4"></div>
+        </div>
+        <div class="card-body px-1 mb-1 py-0 d-flex flex-row">
+                <div class="col-6 px-1">
+                    <button type="submit" class="btn-info form-control">検索</button>
+                </div>
+                <div class="6"></div>
+        </div>
+    </div>
+    </form>
+
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    {% if form %}
+    <div class="card shadow row">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body px-1 mb-1 py-0 d-flex flex-row">
+                    <input type="hidden" value="{{eating_day}}" name="eating_day" />
+                    <input type="hidden" value="{{obj_id}}" name="obj_id" />
+                    <div class="col-6 px-1 pt-2">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="6"></div>
+            </div>
+            <button class="btn btn-primary mb-2" type=“submit”>更新する</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if is_stop %}
+$(document).ready(function(){
+    $("#id_is_hide").change(function(){
+        if(this.checked) {
+            // チェックされた時の処理
+
+        } else {
+            // チェックが外れた時の処理
+            $("#id_last_enable").prop("readonly", false);
+        }
+    });
+    {% if is_error %}
+        $("#id_last_enable").prop("readonly", false);
+    {% endif %}
+});
+{% endif %}
+</script>
+{% endblock %}

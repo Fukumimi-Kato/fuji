@@ -1,0 +1,37 @@
+{% extends 'base_master.html' %}
+{% block title %}マスタメンテ画面 ｜ 株式會社 談 Web注文システム{% endblock %}
+{% load templatefilter %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">株式會社 談 Web注文システム マスタメンテ</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-0">画面左のメニューの各マスタのメンテナンス(登録・更新・削除)画面から、ご対応ください。</h4>
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+
+    </div>
+    <!-- end row -->
+</div>
+{% endblock %}

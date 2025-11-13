@@ -1,0 +1,102 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}原体送り料理マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">原体送り料理マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">原体送り料理マスタ確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:raw_plate_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>乾燥：</th>
+                        <th></th>
+                        <th></th>
+                        <th>冷凍：</th>
+                        <th></th>
+                        <th></th>
+                        <th>分量読み取り：</th>
+                        <th>嚥下製造:</th>
+                    </tr>
+                    <tr>
+                        <th>原体料理名称</th>
+                        <th>1人分分量</th>
+                        <th>パッケージ分量</th>
+                        <th>直送対象</th>
+                        <th>1人分分量</th>
+                        <th>パッケージ分量</th>
+                        <th>直送対象</th>
+                        <th>調理表名称から読取</th>
+                        <th>対象/対象外</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td class="w-30"><a href="{% url 'web_order:raw_plate_update' obj.pk %}">{{ obj.base_name }}</a></td>
+                        <td>{{ obj.dry_quantity }}{{ obj.dry_unit }}</td>
+                        <td>{{ obj.dry_package_quantity }}{{ obj.dry_unit }}</td>
+                        {% if obj.is_direct_dry %}
+                            <td>直送品</td>
+                        {% else %}
+                            <td>直送品でない</td>
+                        {% endif %}
+                        <td>{{ obj.cold_quantity }}{{ obj.cold_unit }}</td>
+                        <td>{{ obj.cold_package_quantity }}{{ obj.cold_unit }}</td>
+                        {% if obj.is_direct_cold %}
+                            <td>直送品</td>
+                        {% else %}
+                            <td>直送品でない</td>
+                        {% endif %}
+
+                        {% if obj.dry_eneble_name_gram %}
+                            <td>読み取る</td>
+                        {% else %}
+                            <td>読み取らない</td>
+                        {% endif %}
+                        {% if obj.enge_cooking_target == 'main' %}
+                            <td>対象(主菜)</td>
+                        {% else %}
+                            {% if obj.enge_cooking_target == 'none' %}
+                                <td>対象でない</td>
+                            {% else %}
+                                <td>対象(主菜以外)</td>
+                            {% endif %}
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

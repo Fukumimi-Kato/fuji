@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load templatefilter %}
+
+{% block script %}
+    <style>
+.errorlist {
+    display: none;
+}
+    </style>
+{% endblock %}
+
+{% block title %}仮注文用・週間入力フォーム{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">仮注文用・週間入力フォーム</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">仮注文用・週間入力フォーム</h2>
+            <h3 class="mb-3 text-pink">{{ order_limit_day |date:"Mj日" }} 17時までに
+                {{ order_start |date:"Mj日" }} 〜 {{ order_end |date:"Mj日" }} の仮注文をお願いいたします</h3>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <div class="orderform">
+            <input class="btn btn-info col-base col-100 mb-3" type="button" value="前の週の注文を反映する" id="btn-prev-input">
+            <cells class="cells">
+                <h4 class="px-2 text-pink">※混ぜご飯の合数及びアレルギー等の注文については反映されません</h4>
+            </cells>
+            <menus class="menus">
+                {% for unit in unit_list %}
+                    <div class="col-base col-100 colour-cadetblue"><h5>{{ unit }}</h5></div>{# ユニット名を表示 #}
+                    {% for menu in menu_list %}
+                        <div class="col-base col-100 colour-sandybrown"><h3>{{ menu }}</h3></div>{# 献立種類を表示 常食・ソフトなど #}
+                        {% for meal in meal_list %}
+                            <div class="col-base col-100">{{ meal }}</div>{# 食事区分を表示 朝昼夕・間食など #}
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </menus>
+            <cells class="cells">
+                <form action="" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        {# カスタムテンプレートフィルタ: eval_cycle #}
+                        {% with unit_cycle|eval_cycle:forloop.counter0 as res1 %}
+                        {% with menu_cycle|eval_cycle:forloop.counter0 as res2 %}
+                            {% if res1 %}
+                                {# ユニット名が切り替わった場合 空行と日付行を挿入 #}
+                                <div class="col-base col-100"></div>{# 空行 #}
+                                {% for day in date_list %}
+                                    {% if forloop.counter == 5 %}
+                                        <div class="col-base col-1-7 colour-cornflowerblue">{{ day |date:"Mj日（D）" }}</div>{# 土曜日 #}
+                                    {% elif forloop.counter == 6 %}
+                                        <div class="col-base col-1-7 colour-salmon">{{ day |date:"Mj日（D）" }}</div>{# 日曜日 #}
+                                    {% else %}
+                                        <div class="col-base col-1-7 colour-bisque">{{ day |date:"Mj日（D）" }}</div>{# 平日 #}
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="col-base col-1-7">{{ form }}</div>{# 食数入力欄 #}
+                            {% elif res2 %}
+                                {# 献立種類が切り替わった場合 日付行を挿入 #}
+                                {% for day in date_list %}{# dates: date_list #}
+                                    {% if forloop.counter == 5 %}
+                                        <div class="col-base col-1-7 colour-cornflowerblue">{{ day |date:"Mj日（D）" }}</div>{# 土曜日 #}
+                                    {% elif forloop.counter == 6 %}
+                                        <div class="col-base col-1-7 colour-salmon">{{ day |date:"Mj日（D）" }}</div>{# 日曜日 #}
+                                    {% else %}
+                                        <div class="col-base col-1-7 colour-bisque">{{ day |date:"Mj日（D）" }}</div>{# 平日 #}
+                                    {% endif %}
+                                {% endfor %}
+                                <div class="col-base col-1-7">{{ form }}</div>{# 食数入力欄 #}
+                            {% else %}
+                                <div class="col-base col-1-7">{{ form }}</div>{# 食数入力欄 #}
+                            {% endif %}
+                        {% endwith %}
+                        {% endwith %}
+                    {% endfor %}
+                    <input class="btn btn-primary col-base col-100" type="button" value="この週の注文を確定する" onclick="submit();">
+                </form>
+            </cells>
+        </div>
+        <hr>
+        <div class="navigation">
+            <prev-week class="prev-week">
+                <button type="button" class="btn btn-info btn-lg width-xl waves-effect waves-light"
+                        onclick="location.href='{% url 'web_order:order' %}?p={{ from_date|date:"Ymd" }}'">前週へ</button>
+            </prev-week>
+            <next-week class="next-week">
+                <button type="button" class="btn btn-info btn-lg width-xl waves-effect waves-light"
+                        onclick="location.href='{% url 'web_order:order' %}?n={{ from_date|date:"Ymd" }}'">翌週へ</button>
+            </next-week>
+        </div>
+    </div>
+</div>
+
+<!-- デバッグ用
+<p>未使用（view側で使用）</p>
+<ul>
+    <li>unit_cnt: {{ unit_cnt }}</li>
+    <li>menu_cnt: {{ menu_cnt }}</li>
+    <li>meal_cnt: {{ meal_cnt }}</li>
+    <li>unit_cells: {{ unit_cells }}</li>
+    <li>meal_cells: {{ meal_cells }}</li>
+    <li>menu_cells: {{ menu_cells }}</li>
+</ul>
+
+<p>使用中</p>
+<ul>
+    <li>order_limit_day: {{ order_limit_day }}</li>
+    <li>order_start: {{ order_start }}</li>
+    <li>order_end: {{ order_end }}</li>
+
+    <li>unit_list: {{ unit_list }}</li>
+    <li>menu_list: {{ menu_list }}</li>
+    <li>meal_list: {{ meal_list }}</li>
+
+    <li>unit_cycle: {{ unit_cycle }}</li>
+    <li>menu_cycle: {{ menu_cycle }}</li>
+
+    <li>date_list: {{ date_list }}</li>
+    <li>from_date: {{ from_date }}</li>
+</ul>
+-->
+
+
+<script>
+// templateで自動的に出力されるlabel要素を非表示に
+let ele = document.getElementsByTagName('label');
+
+for(i=0;i<ele.length;i++){
+    ele[i].style.display ="none";
+}
+
+let tr_tag = document.getElementsByTagName('tr');
+
+for(i=0;i<tr_tag.length;i++){
+    tr_tag[i].style.display ="none";
+}
+
+let prev_counts = '{{ prev_counts }}';
+$(function(){
+    $('#btn-prev-input').on('click', function() {
+      var sp = prev_counts.split(',');
+      for (var i = 0; i < sp.length; i++)
+      {
+        if ((sp[i] == 0) && ($('#id_form-' + i + '-quantity').attr('readonly') == null))
+            $('#id_form-' + i + '-quantity').val('');
+        else if ($('#id_form-' + i + '-quantity').attr('readonly') == null)
+            $('#id_form-' + i + '-quantity').val(sp[i]);
+      }
+    });
+});
+
+</script>
+
+{% endblock %}

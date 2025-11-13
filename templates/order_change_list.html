@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}仮注文後の食数変更{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">仮注文後の食数変更</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">仮注文後の食数変更</h2>
+            {% if holiday_name %}
+                <h3 class="mb-3 text-pink">運送便の{{ holiday_name }}による仕入れの都合により、現在食数変更は行えません。</h3>
+            {% else %}
+                <h3 class="mb-3 text-pink">{{ from_date |date:"Mj日" }} 〜 {{ to_date |date:"Mj日" }} 喫食分が変更可能です</h3>
+            {% endif %}
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="card shadow mb-3">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    {% if not holiday_name %}
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+
+                <thead>
+                    <tr>
+                        <th>ユニット名</th>
+                        <th>喫食日</th>
+                        <th>食事区分</th>
+                        <th>献立種類</th>
+                        <th>食数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td>{{ obj.unit_name }}</td>
+                        <td><a href="{% url 'web_order:order_change_update' obj.pk %}">{{ obj.eating_day |date:"Y年m月d日"}}</a></td>
+                        <td><a href="{% url 'web_order:order_change_update' obj.pk %}">{{ obj.meal_name }}</a></td>
+                        <td><a href="{% url 'web_order:order_change_update' obj.pk %}">{{ obj.menu_name }}</a></td>
+                        <td><a href="{% url 'web_order:order_change_update' obj.pk %}">{{ obj.quantity }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

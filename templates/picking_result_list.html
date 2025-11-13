@@ -1,0 +1,108 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}ピッキング結果確認{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">ピッキング結果確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">ピッキング結果確認</h2>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+     <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+   <div class="card shadow mt-4 mb-3">
+        <div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="result-datatable" class="table text-nowrap" >
+                        <thead>
+                            <tr>
+                                <th>端末No.</th>
+                                <th>日付</th>
+                                <th>ユニット</th>
+                                <th>喫食日</th>
+                                <th>食事区分</th>
+                                <th>種類</th>
+                                <th>照合内容</th>
+                                <th>食数</th>
+                                <th>袋数</th>
+                                <th>異常</th>
+                                {% for result_label in result_label_list %}
+                                    <th>{{ result_label }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obj in object_list %}
+                            <tr>
+                                <td>{{ obj.terminal_no }}</td>
+                                <td>{{ obj.picking_date }}</td>
+                                <td>{{ obj.unit_number }}.{{ obj.unit_name }}</td>
+                                <td>{{ obj.eating_day }}</td>
+                                <td>{{ obj.meal_name }}</td>
+                                <td>{{ obj.type }}</td>
+                                <td>{{ obj.picking_phase }}</td>
+                                <td>{{ obj.order_count }}</td>
+                                <td>{{ obj.package_count }}</td>
+                                <td>{{ obj.warning }}</td>
+                                {% for result in obj.display_results %}
+                                    <td>{{ result }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    const timer = {{ interval }}
+    window.addEventListener('load',function(){
+      setInterval('location.reload()',timer);
+    });
+    $(document).ready(function() {
+        var table = $('#result-datatable').DataTable({
+            searching: true,
+            stateSave: true,
+
+            lengthMenu: [ 50, 100, 150, 200 ],
+            displayLength: 100,
+
+            "order": [],
+
+            "scrollX":true,
+            "language": {
+                "paginate": {
+                    "previous": "<i class='mdi mdi-chevron-left'>",
+                    "next": "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            "drawCallback": function () {
+                $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+            },
+        });
+    } );
+</script>
+{% endblock %}

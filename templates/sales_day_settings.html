@@ -1,0 +1,75 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}施設別_売上日調整日数マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">施設別_売上日調整日数マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">施設別_売上日調整日数マスタ確認</h2>
+            <h4>本マスタの設定内容は、請求データに影響を与えます。登録・更新後、必要であれば
+                <a href="{% url 'web_order:control_panel' %}" class="text-decoration-underline" target="_blank">コントロールパネル</a>から
+                請求データを再発行してください。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:sales_day_setting_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>ユニット名</th>
+                        <th>土曜受取不可・調整日数</th>
+                        <th>日曜受取不可・調整日数</th>
+                        <th>祝日受取不可・調整日数</th>
+                        <th>業務委託・軽減税率なし</th>
+                        <th>遠隔地・金曜受取調整あり</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:sales_day_setting_update' obj.pk %}">{{ obj.unit_name }}</a></td>
+                        <td>{{ obj.ng_saturday }}</td>
+                        <td>{{ obj.ng_sunday }}</td>
+                        <td>{{ obj.ng_holiday }}</td>
+                        {% if obj.reduced_rate %}
+                            <td><div class="text-danger">業務委託対象</div></td>
+                        {% else %}
+                            <td>業務委託でない</td>
+                        {% endif %}
+                        {% if obj.is_far %}
+                            <td class="text-danger">調整対象</td>
+                        {% else %}
+                            <td>調整対象でない</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

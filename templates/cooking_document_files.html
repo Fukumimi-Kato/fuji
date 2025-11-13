@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}献立資料一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">献立資料一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">献立資料一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <form method="GET">
+            {% if usr %}
+                <input type="hidden" name="usr" value="{{usr}}" />
+            {% endif %}
+            <div class="col-xl-3">
+                <input type="month" name="date" class="form-control mb-1" {% if date %} value="{{date}}" {% endif %}/>
+            </div>
+            <div class="col-xl-3">
+                <input type="submit" value="検索" class="btn-primary form-control" />
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+            {% endif %}
+        </div>
+    </div> <!-- end row -->
+    <div class="card-body px-2 mb-0 d-flex flex-row">
+        <div class="col-3 px-2">
+            <button class="btn btn-info form-control" id="download">ダウンロード</button>
+        </div>
+        <div class="col-3 px-2">
+            <button class="btn btn-info form-control" id="all-select">全選択</button>
+        </div>
+        <div class="col-3 px-2">
+            <button class="btn btn-info form-control" id="all-disable">全解除</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table id="basic-datatable" class="table dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th>ダウンロード対象</th>
+                                        <th>ファイル名</th>
+                                        <th>更新日時</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for file in document_files %}
+                                        <tr>
+                                            <td><input type="checkbox" class="dl-garget form-class" id="check-{{forloop.counter0}}"></td>
+                                            <td><a class="download_file" id="link-{{forloop.counter0}}" href="{{ document_url }}/{{ file.0 }}">{{ file.1 }}</a></td>
+                                            <td>{{ file.2 }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div> <!-- end table responsive-->
+                    </div> <!-- end row -->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>
+
+<script>
+$(function(){
+    const checkbox = $(".dl-garget");
+    $('#download').on('click', function() {
+      dlFiles();
+    });
+    function dlFiles(){
+        var file_count = $(".download_file").length;  // ダウンロード数
+        var try_count = 0;
+        var err_file = [];
+        checkbox.each(function(index) {
+			let num = 0;
+			if($('#check-' + index).prop('checked')) {
+                var href = $('#link-' + index).attr('href');
+                var filename = $('#link-' + index).text();
+
+                loadFile(href, function (responce) {
+                    // 経過処理
+                    try_count++;
+                    if (responce!=null){
+                        downloadAsFile(filename,responce);
+                    }else{
+                        err_file.push(filename);
+                    }
+                    if (file_count==try_count){
+                        // 終了処理
+                        if (err_file.length!=0){
+                            // エラー処理
+                        }
+                    }
+                });
+            }
+		});
+    }
+
+    // サーバーからブラウザにロード
+    var loadFile = function(href, cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function(){
+            if (this.readyState == 4 ){
+                if ( this.status == 200) {
+                    cb(this.response);
+                }else{
+                    cb(null);
+                }
+            }
+        }
+        xhr.open('GET', href, true);
+        xhr.responseType = 'blob';
+        xhr.send(null);
+    }
+
+    // ブラウザからPCにダウンロード
+    var downloadAsFile = function(filename, blob) {
+        var objectURL = window.URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        document.body.appendChild(link);
+        link.href = objectURL;
+        link.download = filename;
+        link.click();
+        document.body.removeChild(link);
+    };
+    $('#all-select').on('click', function() {
+      checkbox.attr("checked", true).prop("checked", true).change();
+    });
+    $('#all-disable').on('click', function() {
+      checkbox.removeAttr("checked").prop("checked", false).change();
+    });
+});
+</script>
+{% endblock %}
+

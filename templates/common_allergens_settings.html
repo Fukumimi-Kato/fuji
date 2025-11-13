@@ -1,0 +1,108 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}頻発アレルギー設定画面{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">頻発アレルギー設定画面</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">頻発アレルギー設定画面</h2>
+            <h4>出力順：らくらく献立上の画面の位置(最初のアレルギー用食種の位置を1とした、相対的な位置)を設定してください。</h4>
+            <h4>アレルギー種類は
+                <a href="{% url 'web_order:allergen_masters'%}" class="text-decoration-underline" target="_blank">こちら</a>
+                から、本システム上に登録してください。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<form method="POST" enctype='multipart/form-data'>
+    {% csrf_token %}
+    <div class="card shadow mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3">
+                    <h5>短縮名:</h5>
+                    {{ form.code }}{{ form.code.errors }}
+                    <h5>アレルギー名:</h5>
+                    {{ form.name }}{{ form.name.errors }}
+                    <h5>献立種類:</h5>
+                    {{ form.menu_name }}{{ form.menu_name.errors }}
+                </div>
+                <div class="col-6">
+                    <h5>アレルギー種類(頻発アレルギーから選択):</h5>
+                    {{ form.allergen }}{{ form.allergen.errors }}
+                </div>
+                <div class="col-3">
+                    <h5>出力順:</h5>
+                    {{ form.seq_order }}{{ form.seq_order.errors }}
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">追加する</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <form>
+                {% csrf_token %}
+            <table class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>位置入れ替え</th>
+                        <th>位置</th>
+                        <th>短縮名</th>
+                        <th>対応アレルギー名</th>
+                        <th>献立種類</th>
+                        <th>アレルギー種類</th>
+                        <th>削除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td>
+                            <button class="btn btn-info" type=“submit” id="up_{{obj.id}}" formmethod="POST"
+                            formaction="{% url 'web_order:common_allergen_seq_up' obj.seq_order %}">▲</button>
+                            <button class="btn btn-info" type=“button” id="down_{{obj.id}}" formmethod="POST"
+                            formaction="{% url 'web_order:common_allergen_seq_down' obj.seq_order %}">▼</button>
+                        </td>
+                        <td>{{ obj.seq_order }}</td>
+                        <td>{{ obj.code }}</td>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.menu_name }}</td>
+                        <td>{{ obj.allergens }}</td>
+                        <td>
+                                <button class="btn btn-danger" type=“submit” id="delete_{{obj.id}}"
+                                    formmethod="POST" name="delete_btn"
+                                    formaction="{% url 'web_order:common_allergen_delete' obj.seq_order %}">削除</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

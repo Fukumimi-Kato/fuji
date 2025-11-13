@@ -1,0 +1,169 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}ピッキング結果履歴{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">ピッキング結果履歴</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">ピッキング結果履歴</h2>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+     <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-xl-12">
+        <div class="row">
+            <div class="col-3">
+                <h3 class="px-3">対象製造日検索:</h3>
+                <div class="form-group card-body px-4 mb-0 d-flex flex-row">
+                    <div class="form-inline">
+                        <form action="{% url 'web_order:picking_histories' %}" method="GET">
+                            <div class="col-12 mb-1 form-inline">
+                                <input type="date" class="form-control" name="cooking_day" value="{{ cooking_day }}">
+                            </div>
+                            <div class="col-12 px-3 mb-1 form-inline">
+                                <h4>■絞込条件</h4>
+                            </div>
+                            <div class="col-12 px-3 mb-1 form-inline">
+                                <select class="form-control" name="visible_meal">
+                                    <option value="" {% if visible_meal == "" %} selected {% endif %}>--全ての食事区分--</option>
+                                    <option value="1" {% if visible_meal == "1" %} selected {% endif %}>朝食</option>
+                                    <option value="2" {% if visible_meal == "2" %} selected {% endif %}>昼食</option>
+                                    <option value="3" {% if visible_meal == "3" %} selected {% endif %}>夕食</option>
+                                </select>
+                                <select class="form-control" name="visible_type">
+                                    <option value="" {% if visible_type == "" %} selected {% endif %}>--全ての中袋種類--</option>
+                                    <option value="1" {% if visible_type == "1" %} selected {% endif %}>基本食</option>
+                                    <option value="2" {% if visible_type == "2" %} selected {% endif %}>嚥下食</option>
+                                    <option value="3" {% if visible_type == "3" %} selected {% endif %}>汁・汁具</option>
+                                    <option value="4" {% if visible_type == "4" %} selected {% endif %}>原体</option>
+                                </select>
+                                <select class="form-control" name="visible_phase">
+                                    <option value="" {% if visible_phase == "" %} selected {% endif %}>--全ての照合内容--</option>
+                                    <option value="0" {% if visible_phase == "0" %} selected {% endif %}>ピッキング指示書と中袋</option>
+                                    <option value="1" {% if visible_phase == "1" %} selected {% endif %}>配送用ダンボールと中袋</option>
+                                </select>
+                            </div>
+                            <div class="col-12 px-3 mb-1 form-inline">
+                                <label for="corrected">訂正済みを表示する:</label>
+                                {% if is_show_corrected %}
+                                    <input type="checkbox" id="corrected" name="corrected" value="on" checked>
+                                {% else %}
+                                    <input type="checkbox" id="corrected" name="corrected" value="on">
+                                {% endif %}
+                            </div>
+                            <div class="col-12 form-inline">
+                                <button class="btn btn-primary mb-2" type="submit">検索</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3"></div>
+            <div class="col-6">
+                <h3 class="px-3">備考欄:</h3>
+                <form action="{% url 'web_order:picking_histories' %}" method="POST" enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    {{ notice_form.cooking_date.as_hidden }}
+                    {{ notice_form.note }}
+                    <div class="col-12 form-inline mt-2">
+                        {% if notice_form.instance.id %}
+                            <a class="btn btn-info" href="{% url 'web_order:picking_notice_print' notice_form.instance.id %}" target="_blank"  rel="noopener noreferrer">印刷</a>
+                        {% endif %}
+                        <button class="btn btn-primary" type="submit">登録</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   <div class="card shadow mt-4 mb-3">
+        <div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="result-datatable" class="table text-nowrap" >
+                        <thead>
+                            <tr>
+                                <th>端末No.</th>
+                                <th>日付</th>
+                                <th>ユニット</th>
+                                <th>喫食日</th>
+                                <th>食事区分</th>
+                                <th>種類</th>
+                                <th>照合内容</th>
+                                <th>食数</th>
+                                <th>袋数</th>
+                                <th>異常</th>
+                                {% for result_label in result_label_list %}
+                                    <th>{{ result_label }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obj in object_list %}
+                            <tr>
+                                <td>{{ obj.terminal_no }}</td>
+                                <td>{{ obj.picking_date }}</td>
+                                <td>{{ obj.unit_number }}.{{ obj.unit_name }}</td>
+                                <td>{{ obj.eating_day }}</td>
+                                <td>{{ obj.meal_name }}</td>
+                                <td>{{ obj.type }}</td>
+                                <td>{{ obj.picking_phase }}</td>
+                                <td>{{ obj.order_count }}</td>
+                                <td>{{ obj.package_count }}</td>
+                                <td>{{ obj.warning }}</td>
+                                {% for result in obj.display_results %}
+                                    <td>{{ result }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        var table = $('#result-datatable').DataTable({
+            searching: true,
+            stateSave: true,
+
+            lengthMenu: [ 50, 100, 150, 200 ],
+            displayLength: 100,
+
+            "order": [],
+
+            "scrollX":true,
+            "language": {
+                "paginate": {
+                    "previous": "<i class='mdi mdi-chevron-left'>",
+                    "next": "<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            "drawCallback": function () {
+                $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+            },
+        });
+	    } );
+</script>
+{% endblock %}

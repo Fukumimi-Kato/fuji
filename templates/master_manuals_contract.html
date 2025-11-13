@@ -1,0 +1,49 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% block title %}マスタメンテ契約関連マニュアル一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">マスタメンテ契約関連マニュアル一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">マスタメンテ契約関連マニュアル一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div> <!-- end row -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mt-3">
+                        <table>
+                            <tr>
+                            {% for file in manual_files %}
+                                <td><a href="{{ manual_url }}/{{ file }}">{{ file }}</a></td>
+                                {%if forloop.counter|divisibleby:"3" %}
+                                    </tr><tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+                        </table>
+                    </div> <!-- end table responsive-->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>
+{% endblock %}

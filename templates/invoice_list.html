@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load in_group %}
+
+{% block title %}請求書一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">請求書一覧</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">請求書一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>ファイル名</th>登録
+                        <th>登録日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td><a href="{{ obj.document_file.url }}">{{ obj.document_file |cut:"invoice/" }}</a></td>
+                            <td>{{ obj.updated_at |date:"n月d日 G:i"}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block title %}献立管理資料一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">献立管理資料一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">献立管理資料一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <form method="GET">
+        {% csrf_token %}
+        <div class="row">
+                <div class="col-xl-3">
+                    <input type="month" name="date" class="form-control mb-1" {% if date %} value="{{date}}" {% endif %}/>
+                </div>
+                <div class="col-xl-3">
+                    <input type="submit" value="検索" class="btn-primary form-control" />
+                </div>
+        </div>
+        <div class="mb-0 d-flex flex-row">
+            <div class="col-3 pr-2">
+                <button class="btn btn-info form-control" id="download" formmethod="POST" formaction="{% url 'web_order:documents_delete' %}">削除</button>
+            </div>
+            <div class="col-3 px-2">
+                <button type="button" class="btn btn-info form-control" id="all-select">全選択</button>
+            </div>
+            <div class="col-3">
+                <button type="button" class="btn btn-info form-control" id="all-disable">全解除</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card-header py-1 messages">
+                {% if messages %}
+                    {% for message in messages %}
+                        <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div> <!-- end row -->
+        <div class="row">
+            <div class="container-fluid">
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box page-title-box-alt">
+                            <div class="page-title-left col-xl-3">
+                                <input type="hidden" name="current_date" value="{{date}}" />
+                                <input type="hidden" name="path" value="{{path|default:'' }}" />
+                                <div class="col-xl-3">
+                                    <button type="submit" name="upper_btn" value="{{parent|default:'/'}}" class="btn-success form-control">上へ</button>
+                                </div>
+                            </div>
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    {% for path in path_list %}
+                                        <li class="breadcrumb-item text-success">{{ path }}</li>
+                                    {% endfor %}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+            </div> <!-- container -->
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row mt-3">
+                            <div class="table-responsive">
+                                <table id="basic-datatable" class="table dt-responsive nowrap w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>削除対象</th>
+                                            <th>名称</th>
+                                            <th>更新日時</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dir in document_dirs %}
+                                            <tr>
+                                                <td><input type="checkbox" class="dl-garget form-class" id="check-folder-{{forloop.counter0}}" name="folder-{{forloop.counter0}}" value="{{dir}}"></td>
+                                                <td>
+                                                    <a href="{% url 'web_order:document_files' %}?date={{date}}&path={{current}}/{{ dir }}">
+                                                        <i class="mdi mdi-folder"></i>
+                                                        <span> {{ dir }} </span>
+                                                    </a>
+                                                </td>
+                                                <td>{{ file.1 }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% for file in document_files %}
+                                            <tr>
+                                                <td><input type="checkbox" class="dl-garget form-class" id="check-file-{{forloop.counter0}}" name="file-{{forloop.counter0}}" value="{{file.0}}"></td>
+                                                <td>
+                                                    <a href="{{ document_url }}/{{ file.0 }}">
+                                                        <i class="mdi mdi-file-outline"></i>
+                                                        <span> {{ file.0 }} </span>
+                                                    </a>
+                                                </td>
+                                                <td>{{ file.1 }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> <!-- end table responsive-->
+                    </div> <!-- end card-body -->
+                </div> <!-- end card-->
+            </div> <!-- end col -->
+        </div> <!-- end row -->
+    </form>
+</div>
+
+<script>
+$(function(){
+    const checkbox = $(".dl-garget");
+    $('#all-select').on('click', function() {
+      console.log("クリック");
+      checkbox.attr("checked", true).prop("checked", true).change();
+    });
+    $('#all-disable').on('click', function() {
+      console.log("クリック");
+      checkbox.removeAttr("checked").prop("checked", false).change();
+    });
+});
+</script>
+{% endblock %}

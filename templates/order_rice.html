@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load templatefilter %}
+
+{% block title %}混ぜご飯／合数指定{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">混ぜご飯／合数指定</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">混ぜご飯の合数指定フォーム</h2>
+                <h3 class="mb-3 text-pink">{{ from_date |date:"Mj日" }}以降の喫食分が登録・変更可能です</h3>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+
+        <div class="order-allergen">
+
+            <div class="col-base col-45-100 colour-bisque">喫食日</div>
+            <div class="col-base col-45-100 colour-bisque">ユニット名</div>
+            <div class="col-base col-10-100 colour-bisque">合数</div>
+
+            <form action="" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    <div class="col-base col-45-100">{{ form.eating_day }}</div>
+                    <div class="col-base col-45-100">{{ form.unit_name }}</div>
+                    <div class="col-base col-10-100">{{ form.quantity }}</div>
+                    {{ form.id }}
+                {% endfor %}
+                {% if error_message is not None %}
+                    <div class="input_form_error col-100 btn btn-warning">{{ error_message }}</div>
+                {% endif %}
+                <input class="btn btn-primary col-base col-100" type="button" value="上記の内容で登録する" onclick="submit();">
+            </form>
+        </div>
+    </div>
+</div>
+<!-- デバッグ用
+
+<p>unit_list: {{ unit_list }}</p>
+<p>menu_list: {{ menu_list }}</p>
+<p>meal_list: {{ meal_list }}</p>
+
+<p>unit_cells: {{ unit_cells }}</p>
+<p>meal_cells: {{ meal_cells }}</p>
+<p>menu_cells: {{ menu_cells }}</p>
+
+<p>unit_cycle: {{ unit_cycle }}</p>
+<p>menu_cycle: {{ menu_cycle }}</p>
+-->
+
+<script>
+// templateで自動的に出力されるlabel要素を非表示に
+let ele = document.getElementsByTagName('label');
+
+for(i=0;i<ele.length;i++){
+    ele[i].style.display ="none";
+}
+
+let tr_tag = document.getElementsByTagName('tr');
+
+for(i=0;i<tr_tag.length;i++){
+    tr_tag[i].style.display ="none";
+}
+
+</script>
+
+{% endblock %}

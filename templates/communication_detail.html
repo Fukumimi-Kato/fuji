@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}お知らせ詳細{% endblock %}
+
+{% block script %}
+    <style>
+        .wraptext {
+          white-space: pre-wrap;
+        }
+    </style>
+{% endblock %}
+
+{% block overview %}お知らせ詳細{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">お知らせ詳細</li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="header-title">{{ object.title }}</h3><hr>
+                <div class="mb-2 wraptext">
+{{ object.message }}
+                </div>
+            </div>
+        </div>
+        {% if object.document_file %}
+        <h3>添付ファイル：</h3>
+        <a href="{{ file_url }}" class="notify-item">
+            <i class="mdi mdi-attachment"></i>
+            <strong>{{ file_name }}</strong>
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}

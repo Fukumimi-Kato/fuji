@@ -1,0 +1,59 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}お知らせ追加{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">お知らせ追加</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">お知らせ追加</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+
+                <form method="POST" enctype='multipart/form-data'>
+
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.group.id_for_label }}">{{ form.group.label }}:</label>
+                        {{ form.group }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}:</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.message.id_for_label }}">{{ form.message.label }}:</label>
+                        {{ form.message }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.document_file.id_for_label }}">{{ form.document_file.label }}:</label>
+                        {{ form.document_file }}
+                    </div>
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">追加する</button>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="btn btn-secondary ml-2" href="{% url 'web_order:communication_list'%}">キャンセル</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}

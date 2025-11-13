@@ -1,0 +1,311 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}コントロールパネル{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">コントロールパネル</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">管理者用コントロールパネル</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- end row -->
+    <div class="row">
+        <div class="col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase1" role="button" aria-expanded="false" aria-controls="cardCollpase1"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">{{ last_from_date |date:"n/j" }}〜{{ last_to_date |date:"n/j" }} 喫食分が未発注の施設</h4>
+
+                    <div id="cardCollpase1" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                                {% for obj in last_week %}
+                                    {% if obj.qt_sum > 0 %}
+
+                                    {% else %}
+                                        <tr>
+                                            <td>{{ obj.unit_name__unit_name }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        </div> <!-- end table responsive-->
+                    </div> <!-- collapsed end -->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase2" role="button" aria-expanded="false" aria-controls="cardCollpase2"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">{{ from_date |date:"n/j" }}〜{{ to_date |date:"n/j" }} 喫食分が未発注の施設</h4>
+
+                    <div id="cardCollpase2" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                                {% for obj in this_week %}
+                                    {% if obj.qt_sum > 0 %}
+
+                                    {% else %}
+                                        <tr>
+                                            <td>{{ obj.unit_name__unit_name }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        </div> <!-- end table responsive-->
+                    </div> <!-- collapsed end -->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase3" role="button" aria-expanded="false" aria-controls="cardCollpase3"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">日々の業務（喫食日指定）</h4>
+
+                    <div id="cardCollpase3" class="collapse pt-3 show">
+
+                        <!--
+                        <div class="row mt-3">
+                            <div class="mb-4 col-md-5">
+                                <form action="{% url 'web_order:exec_agg_temp' %}" method="POST">
+                                    {% csrf_token %}
+                                    {{ form.in_date }}
+                            </div>
+                                <button type="submit" class='btn btn-primary mb-4 col-md-7'>食数集計表の出力</button>
+                                </form>
+                        </div>
+                        -->
+                        <!-- end table responsive-->
+
+                        <!--
+                        <div class="row mt-3">
+                            <div class="mb-4 col-md-5">
+                                <form action="{% url 'web_order:exec_transfer_label' %}" method="POST">
+                                    {% csrf_token %}
+                                    {{ form.in_date }}
+                            </div>
+                                <button type="submit" class='btn btn-primary mb-4 col-md-7'>配送ラベル出力</button>
+                                </form>
+                        </div>
+                        -->
+                        <!-- end table responsive-->
+
+                        <div class="row mt-3">
+                            <div class="mb-4 col-md-5">
+                                <form action="{% url 'web_order:exec_invoice_label' %}" method="POST">
+                                    {% csrf_token %}
+                                    {{ form.in_date }}
+                            </div>
+                                <button type="submit" class='btn btn-primary mb-4 col-md-7'>請求データ集計</button>
+                                </form>
+                        </div> <!-- end table responsive-->
+
+                    </div> <!-- collapsed end -->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <!--
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase7" role="button" aria-expanded="false" aria-controls="cardCollpase7"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">日々の業務（ファイル登録）</h4>
+
+                    <div id="cardCollpase7" class="collapse pt-3 show">
+
+                    <h4 class="header-title mt-3">調理表を独自仕様に変換する</h4>
+                        <div class="row mt-3 col-md-12">
+                                <form action="{% url 'web_order:convert_cooking_direction' %}" method="POST" enctype='multipart/form-data'>
+                                    {% csrf_token %}
+                                    {{ convert_form.type | add_class:"mb-1" }}
+                                    {{ convert_form.document_file }}
+                        </div>
+                        <div class="row mt-2 col-md-12">
+                                        <button type="submit" class="btn btn-primary">作成開始</button>
+                                </form>
+                        </div>
+
+                    <h4 class="header-title mt-3">調理表を登録し、計量表を作成する</h4>
+                        <div class="row mt-3 col-md-12">
+                                <form action="{% url 'web_order:create_measure_table' %}" method="POST" enctype='multipart/form-data'>
+                                    {% csrf_token %}
+                                    {{ import_form.document_file }}
+                        </div>
+                        <div class="row mt-2 col-md-12">
+                                        <button type="submit" class="btn btn-primary">作成開始</button>
+                                </form>
+                        </div>
+
+                    <h4 class="header-title mt-5">盛付指示書を作成するために</br>月間献立表を登録する</h4>
+                        <div class="row mt-3 col-md-12">
+                                <form action="{% url 'web_order:register_monthly_menu' %}" method="POST" enctype='multipart/form-data'>
+                                    {% csrf_token %}
+                                    {{ import_form.document_file }}
+                        </div>
+                        <div class="row mt-2 col-md-12">
+                                        <button type="submit" class="btn btn-primary">月間献立表アップロード</button>
+                                </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            -->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase4" role="button" aria-expanded="false" aria-controls="cardCollpase4"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">請求データ（最新10件）</h4>
+
+                    <div id="cardCollpase4" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                            {% for file in invoice_files|slice:":10" %}
+                                <tr>
+                                    <td><a href="{{ invoice_url }}/{{ file }}">{{ file }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase6" role="button" aria-expanded="false" aria-controls="cardCollpase6"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">らく献入力用・食数集計表（最新10件）</h4>
+
+                    <div id="cardCollpase6" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                            {% for file in cooking_files|slice:":10" %}
+                                <tr>
+                                    <td><a href="{{ cooking_url }}/{{ file }}">{{ file }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <!--
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase6" role="button" aria-expanded="false" aria-controls="cardCollpase6"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">計量表（最新10件）</h4>
+
+                    <div id="cardCollpase6" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                            {% for file in measure_files|slice:":10" %}
+                                <tr>
+                                    <td><a href="{{ measure_url }}/{{ file }}">{{ file }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <!--
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase5" role="button" aria-expanded="false" aria-controls="cardCollpase5"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">配送ラベル（最新10件）</h4>
+
+                    <div id="cardCollpase5" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                            {% for file in label_files|slice:":10" %}
+                                <tr>
+                                    <td><a href="{{ label_url }}/{{ file }}">{{ file }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div> <!-- end col -->
+        <div class="col-xl-3">
+            <!--
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase4" role="button" aria-expanded="false" aria-controls="cardCollpase4"><i class="mdi mdi-minus"></i></a>
+                    </div>
+
+                    <h4 class="header-title mb-0">請求データ（最新10件）</h4>
+
+                    <div id="cardCollpase4" class="collapse pt-3 show">
+                        <div class="row mt-3">
+                            <table>
+                            {% for file in invoice_files|slice:":10" %}
+                                <tr>
+                                    <td><a href="{{ invoice_url }}/{{ file }}">{{ file }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div> <!-- end col -->
+    </div>
+    <!-- end row -->
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}パウチ用CSVファイル一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">パウチ用CSVファイル一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">パウチ用CSVファイル一覧</h2>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+     <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+   <div class="card shadow mt-4 mb-3">
+        <div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                        <tr>
+                            {% for file in csv_files %}
+                                <td><a href="{{ file_url }}/{{ file }}">{{ file }}</a></td>
+                                {%if forloop.counter|divisibleby:"3" %}
+                                    </tr><tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>
+
+{% endblock %}

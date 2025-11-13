@@ -1,0 +1,344 @@
+{% extends 'base_master.html' %}
+{% load django_bootstrap5 %}
+{% load templatefilter %}
+
+{% block title %}注文数変更入力フォーム{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" xmlns="http://www.w3.org/1999/html">注文数変更・週間入力フォーム</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">注文数変更入力フォーム</h2>
+            <h4>納品が終了している日の注文数は、変更できません(通常、喫食日{{adjust_days}}日前納品)。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid my-0">
+    <form action="{% url 'web_order:order_maintenance' %}" method="GET">
+    <div class="card shadow mt-4 mb-3">
+        <div class="card-body px-4 mt-2 mb-0 d-flex flex-row">
+                <div class="col-3 px-1">
+                    対象ユニット：
+                    {{ search_form.unit_name }}
+                </div>
+                <div class="col-3 px-1">
+                    喫食日:
+                    {{ search_form.eating_day }}
+                </div>
+                <div class="col-2 px-1">
+                </div>
+                <div class="4"></div>
+        </div>
+        <div class="card-body px-1 mb-1 py-0 d-flex flex-row">
+                <div class="col-6 px-1">
+                    <button type="submit" class="btn-info form-control">検索</button>
+                </div>
+                <div class="6"></div>
+        </div>
+    </div>
+    </form>
+
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <form action="" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+            {% if disable_processing %}
+            {% else %}
+                <h3>通常注文</h3>
+            {% endif %}
+            <div class="orderform">
+                <menus class="menus">
+                    {% for unit in unit_list %}
+                        <div class="col-base col-100 colour-cadetblue"><h5>{{ unit }}</h5></div>{# ユニット名を表示 #}
+                        {% for menu in menu_list %}
+                            <div class="col-base col-100 colour-sandybrown"><h3>{{ menu }}</h3></div>{# 献立種類を表示 常食・ソフトなど #}
+                        {% endfor %}
+                    {% endfor %}
+                </menus>
+                <cells class="cells">
+                    <div>
+                        {% csrf_token %}
+                        {{ formset.management_form }}
+                        {% if is_only_meal %}
+                            <div class="col-base col-22-100 colour-bisque">朝食</div>
+                            <div class="col-base col-22-100 colour-bisque">昼食</div>
+                            <div class="col-base col-22-100 colour-bisque">夕食</div>
+                            {% for form in formset %}
+                                    <div class="col-base col-22-100"></div>
+                                    <div class="col-base col-10-100"></div>
+                                    <div class="col-base col-22-100"></div>
+                                    <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    <div class="col-base col-22-100"></div>
+                            {% endfor %}
+                        {% else %}
+
+                            {% if two_meal == '朝昼' %}
+                                <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                <div class="col-base col-22-100"></div>
+                                <div class="col-base col-10-100"></div>
+                                {% for form in formset %}
+                                {% with menu_cycle|eval_cycle:forloop.counter0 as res2 %}
+                                    {% if res1 %}
+                                        {# ユニット名が切り替わった場合 空行を挿入 #}
+                                        {% if forloop.counter0 != 0%}
+                                            <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                            <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                            <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                            <div class="col-base col-22-100"></div>
+                                            <div class="col-base col-10-100"></div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if res2 %}
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% else %}
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-10-100"></div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% endfor %}
+                            {% elif two_meal == '朝夕' %}
+                                <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                <div class="col-base col-22-100"></div>
+                                <div class="col-base col-10-100"></div>
+                                {% for form in formset %}
+                                {% with menu_cycle|eval_cycle:forloop.counter0 as res2 %}
+                                    {% if res1 %}
+                                        {# ユニット名が切り替わった場合 空行を挿入 #}
+                                        {% if forloop.counter0 != 0%}
+                                            <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                            <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                            <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                            <div class="col-base col-22-100"></div>
+                                            <div class="col-base col-10-100"></div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if res2 %}
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% else %}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-10-100"></div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% endfor %}
+                            {% elif two_meal == '昼夕' %}
+                                <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                <div class="col-base col-22-100"></div>
+                                <div class="col-base col-10-100"></div>
+                                {% for form in formset %}
+                                {% with menu_cycle|eval_cycle:forloop.counter0 as res2 %}
+                                    {% if res1 %}
+                                        {# ユニット名が切り替わった場合 空行を挿入 #}
+                                        {% if forloop.counter0 != 0%}
+                                            <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                            <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                            <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                            <div class="col-base col-22-100"></div>
+                                            <div class="col-base col-10-100"></div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if res2 %}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% else %}
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-10-100"></div>
+                                    {% endif %}
+                                {% endwith %}
+                                {% endfor %}
+                            {% else %}
+                            {% for form in formset %}
+                                {# カスタムテンプレートフィルタ: eval_cycle #}
+                                {% with unit_cycle|eval_cycle:forloop.counter0 as res1 %}
+                                {% with menu_cycle|eval_cycle:forloop.counter0 as res2 %}
+                                    {% if res1 %}
+                                        {# ユニット名が切り替わった場合 空行を挿入 #}
+                                        {% if forloop.counter0 != 0%}
+                                            <div class="col-base col-22-100"></div>
+                                            <div class="col-base col-10-100"></div>
+                                        {% endif %}
+
+                                        <div class="col-base col-22-100 colour-bisque">朝食</div>
+                                        <div class="col-base col-22-100 colour-bisque">昼食</div>
+                                        <div class="col-base col-22-100 colour-bisque">夕食</div>
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-10-100"></div>
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% elif res2 %}
+                                        <div class="col-base col-22-100"></div>
+                                        <div class="col-base col-10-100"></div>
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% else %}
+                                        <div class="col-base col-22-100">{{ form }}</div>{# 食数入力欄 #}
+                                    {% endif %}
+                                {% endwith %}
+                                {% endwith %}
+                            {% endfor %}
+                            {% endif %}
+                        {% endif %}
+
+                    </div>
+                </cells>
+            </div>
+            {% if allergen_list %}
+            <h3 class="mt-3">アレルギー注文</h3>
+            <div class="clearfix">
+               <div class="col-base col-18-100 colour-bisque">ユニット名</div>
+                <div class="col-base col-18-100 colour-bisque">食事区分</div>
+                <div class="col-base col-18-100 colour-bisque">献立種類</div>
+                <div class="col-base col-18-100 colour-bisque">アレルギー</div>
+                <div class="col-base col-10-100 colour-bisque">食数</div>
+                <div class="col-base col-18-100"></div>
+                <div id="allergen_row">
+                {% for order in allergen_orders %}
+                    <div class="col-base col-18-100 {% if not order %} collapse {% endif %}">
+                        <select class="form-control" name="ar_order_{{forloop.counter0}}_unit">
+                            {% for unit in ar_unit_list %}
+                                {% if order %}
+                                    <option value="{{ unit.id }}" selected>{{ unit.unit_name }}</option>
+                                {% else %}
+                                        <option value="{{ unit.id }}">{{ unit.unit_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-base col-18-100 {% if not order %} collapse {% endif %}">
+                        <select class="form-control" name="ar_order_{{forloop.counter0}}_meal">
+                            <option value="">選択してください</option>
+                            {% for meal in ar_meal_list %}
+                                {% if order %}
+                                    {% if order.meal_name_id == meal.meal_name_id %}
+                                        <option value="{{ meal.meal_name_id }}" selected>{{ meal.meal_name }}</option>
+                                    {% else %}
+                                        <option value="{{ meal.meal_name_id }}">{{ meal.meal_name }}</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="{{ meal.meal_name_id }}">{{ meal.meal_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-base col-18-100 {% if not order %} collapse {% endif %}">
+                        <select class="form-control" name="ar_order_{{forloop.counter0}}_menu">
+                            <option value="">選択してください</option>
+                            {% for menu in ar_menu_list %}
+                                {% if order %}
+                                    {% if order.menu_name_id == menu.menu_name_id %}
+                                        <option value="{{ menu.menu_name_id }}" selected>{{ menu.menu_name }}</option>
+                                    {% else %}
+                                        <option value="{{ menu.menu_name_id }}">{{ menu.menu_name }}</option>
+                                    {% endif %}
+                                {% else %}
+                                        <option value="{{ menu.menu_name_id }}">{{ menu.menu_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-base col-18-100 {% if not order %} collapse {% endif %}">
+                        <select class="form-control" name="ar_order_{{forloop.counter0}}_allergen">
+                            <option value="">選択してください</option>
+                            {% for allergen in allergen_list %}
+                                {% if order %}
+                                    {% if order.allergen_id == allergen.allergen_name_id %}
+                                        <option value="{{ allergen.allergen_name_id }}" selected>{{ allergen.allergen_name }}</option>
+                                    {% else %}
+                                        <option value="{{ allergen.allergen_name_id }}">{{ allergen.allergen_name }}</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="{{ allergen.allergen_name_id }}">{{ allergen.allergen_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-base col-10-100 {% if not order %} collapse {% endif %}">
+                        <input type="number" class="form-control" name="ar_order_{{forloop.counter0}}_quantity"
+                               value="{{order.quantity}}">
+                    </div>
+                    <div class="col-base col-18-100 {% if not order %} collapse {% endif %}"></div>
+                    {% if order %}
+                        {# バリデーションエラー発生時にidのみNoneになる場合があるため、IDもチェックする #}
+                        {% if order.id %}
+                            <input type="hidden" class="form-control" name="ar_order_{{forloop.counter0}}_id"
+                                value="{{order.id}}">
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+                <div class="clearfix">
+                   <div class="col-base col-18-100"></div>
+                    <div class="col-base col-18-100"></div>
+                    <div class="col-base col-18-100"></div>
+                    <div class="col-base col-10-100"></div>
+                    {% if disable_processing %}
+                    {% else %}
+                        <input class="mb-3 btn btn-info col-base col-18-100" id="row_add" type="button" value="行を追加する">
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if error_message is not None %}
+                <div class="mt-3 mb-1 input_form_error col-100 btn btn-warning">{{ error_message }}</div>
+            {% endif %}
+            {% if disable_processing %}
+            {% else %}
+                <input class="btn btn-primary col-base col-100" type="button" value="注文の変更を確定する" onclick="submit();">
+            {% endif %}
+        </form>
+    </div>
+</div>
+<script>
+// templateで自動的に出力されるlabel要素を非表示に
+let ele = document.getElementsByTagName('label');
+
+for(i=0;i<ele.length;i++){
+    ele[i].style.display ="none";
+}
+
+let tr_tag = document.getElementsByTagName('tr');
+
+for(i=0;i<tr_tag.length;i++){
+    tr_tag[i].style.display ="none";
+}
+{% if allergen_list %}
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+$($('#allergen_row > .collapse')[0]).removeClass('collapse');
+{% endif %}
+
+$('#row_add').click(function(event){
+    var h_list = $('#allergen_row > .collapse');
+
+    // 1行分の項目を表示する
+    for(var i = 0; i<6; i++){
+        $(h_list[i]).removeClass('collapse');
+    }
+});
+
+</script>
+
+{% endblock %}

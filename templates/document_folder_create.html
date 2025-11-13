@@ -1,0 +1,43 @@
+{% extends 'base_master.html' %}
+{% load static %}
+
+{% block title %}顧客別_献立資料フォルダマスタ登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">顧客別_献立資料フォルダマスタ登録</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">顧客別_献立資料フォルダマスタ登録</h2>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+
+                <form method="POST" enctype='multipart/form-data'>
+
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">追加する</button>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="btn btn-secondary ml-2" href="{% url 'web_order:document_folders'%}">キャンセル</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}

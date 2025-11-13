@@ -1,0 +1,56 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}顧客別_アレルギー設定マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">顧客別_アレルギー設定マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">顧客別_アレルギー設定マスタ確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:allergen_setting_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>施設名</th>
+                        <th>アレルギー種類</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:allergen_setting_update' obj.pk %}">{{ obj.username.facility_name }}</a></td>
+                        <td>{{ obj.allergen_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

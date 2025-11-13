@@ -1,0 +1,65 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}注文停止・ログイン停止予約一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">注文停止・ログイン停止予約一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">注文停止・ログイン停止予約一覧</h2>
+            <h4>注文停止予約日：注文不可となる初日喫食日</h4>
+            <h4>ログイン停止開始日：施設側閲覧不可となる初日</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>施設名</th>
+                        <th>ユニット</th>
+                        <th>状態</th>
+                        <th>注文停止予約日</th>
+                        <th>ログイン停止開始日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:stop_reservation_update' obj.user.id %}">{{ obj.user.facility_name }}</a></td>
+                        <td>{{ obj.unit }}</td>
+                        <td>{{ obj.status }}</td>
+                        {% if obj.reservation %}
+                            <td>{{ obj.reservation.order_stop_day |date:"Y年m月d日"}}</td>
+                            <td>{{ obj.reservation.login_stop_day |date:"Y年m月d日"}}</td>
+                        {% else %}
+                            <td>-</td>
+                            <td>-</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

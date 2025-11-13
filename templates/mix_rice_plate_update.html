@@ -1,0 +1,96 @@
+{% extends 'base_master.html' %}
+{% load static %}
+
+{% block title %}混ぜご飯マスタ更新{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">混ぜご飯マスタ更新</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">混ぜご飯マスタ登録</h2>
+            <h4><span class="text-danger">混ぜご飯名</span>：調理表上の名称から、料理名の①～⑤の数字、記号、数量、「～の具」を除いた名称を設定します。「混ぜご飯名チェック」でOKになった名称を入力してください。</h4>
+            <h4><span class="text-danger">混ぜご飯の素を使用するもの</span>：チェックを入れた場合、1つの献立名から混ぜご飯の具と液の計量表を2種類出力します。</h4>
+            <h4><span class="text-danger">個別食材出力対象</span>：チェックを入れた場合、計量表に出力される混ぜご飯計量表の「材料配分」シートに各具材の割合を出力します。</h4>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card shadow ml-1">
+            <h3 class="px-1">混ぜご飯名チェック:</h3>
+            <h4>下記にて判定OKとなった名称を入力フォームの「混ぜご飯名」に入力してください。</h4>
+            <div class="px-2" >調理表の料理名：</div>
+            <div class="px-2">
+                <input class="form-control"type="text" id="direction_name" />
+            </div>
+            <div class="px-2">混ぜご飯名：</div>
+            <div class="px-2">
+                <input class="form-control ml-2 mr-2" type="text" id="raw_name" />
+            </div>
+            <div class="px-2">判定結果：</div>
+            <h4 class="px-4" id="name_result">-</h4>
+            <button id="input_btn" type="button" class="btn btn-info mx-2 mb-1">混ぜご飯名反映</button>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+
+                <form method="POST" enctype='multipart/form-data'>
+
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">更新する</button>
+                    </div>
+                </form>
+                <form method="POST" enctype='multipart/form-data'
+                      action="{% url 'web_order:mix_rice_plate_delete' form.instance.id %}"
+                      onsubmit="return window.confirm('設定を削除してもよろしいでしょうか?');">
+                    <div class="row mt-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" id="delete_btn">削除する</button>
+                    </div>
+                </form>
+                <div class="row mt-2">
+                    <a class="btn btn-secondary ml-2" href="{% url 'web_order:mix_rice_plates'%}">キャンセル</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    // 入力欄の変更イベントを定義
+    $("#direction_name, #raw_name").focusout(function(){
+        var source = $('#direction_name').val();
+        var raw = $('#raw_name').val();
+
+        if(~source.indexOf(raw)){
+            // 部分一致のときの処理
+            $('#name_result').text("OK");
+        } else {
+            $('#name_result').text("NG");
+        }
+    });
+
+    $("#input_btn").click(function(){
+        var raw = $('#raw_name').val();
+        var result = $('#name_result').text();
+        if (result == 'OK'){
+            $('#id_name').val(raw);
+        }
+    });
+});
+</script>
+{% endblock %}

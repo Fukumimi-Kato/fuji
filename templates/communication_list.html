@@ -1,0 +1,57 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}お知らせ一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">お知らせ一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">お知らせ一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:communication' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>お知らせ対象のグループ</th>
+                        <th>タイトル</th>
+                        <th>更新日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td>{{ obj.group }}</td>
+                        <td><a href="{% url 'web_order:communication_update' obj.pk %}">{{ obj.title }}</a></td>
+                        <td>{{ obj.updated_at |date:"m月d日 H:i"}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

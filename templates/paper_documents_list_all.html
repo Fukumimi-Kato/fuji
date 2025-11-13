@@ -1,0 +1,65 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load in_group %}
+
+{% block title %}献立資料一覧／登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">献立資料一覧／登録</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">登録済み献立資料</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:paper_documents' %}'">新規登録</button>
+
+
+<div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>作成日</th>
+                        <th>ファイル名</th>
+                        <th>資料種類</th>
+                        <th>資料登録グループ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td>{{ obj.updated_at |date:"n月d日 G:i"}}</td>
+                            <td><a href="{{ obj.document_file.url }}">{{ obj.document_file |cut:"documents/" }}</a></td>
+                            <td>{{ obj.document_kind }}</td>
+                            <td>{{ obj.document_group }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+{{ pk_list }}
+{% endblock %}

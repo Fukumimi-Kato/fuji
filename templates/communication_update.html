@@ -1,0 +1,67 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}お知らせの編集{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">お知らせの編集</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">お知らせの編集</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype='multipart/form-data'>
+
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.group.id_for_label }}">{{ form.group.label }}:</label>
+                        {{ form.group }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}:</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.message.id_for_label }}">{{ form.message.label }}:</label>
+                        {{ form.message }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ form.document_file.id_for_label }}">{{ form.document_file.label }}:</label>
+                        {{ form.document_file }}
+                    </div>
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">更新する</button>
+                    </div>
+                </form>
+                <form method="POST" enctype='multipart/form-data'
+                      action="{% url 'web_order:communication_delete' form.instance.id %}"
+                      onsubmit="return window.confirm('お知らせを削除してもよろしいでしょうか?');">
+                    <div class="row mt-3">
+                        {% csrf_token %}
+                        {% if is_enable_delete %}
+                            <button type="submit" class="btn btn-danger" id="delete_btn">削除する</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-danger" disabled>削除する</button>
+                        {% endif %}
+                    </div>
+                </form>
+                <div class="row mt-2">
+                    <a class="btn btn-secondary ml-2" href="{% url 'web_order:communication_list'%}">キャンセル</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+{% endblock %}

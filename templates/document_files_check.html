@@ -1,0 +1,26 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block title %}献立管理資料一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">献立管理資料一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">献立管理資料一覧(施設表示確認)</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <form method="GET" action="{% url 'web_order:cooking_documents' %}">
+            <div class="col-xl-3">
+                {{ form }}
+            </div>
+            <div class="my-2 col-xl-3">
+                <input type="submit" value="検索" class="btn-primary form-control" />
+            </div>
+    </form>
+</div>
+{% endblock %}

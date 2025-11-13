@@ -1,0 +1,46 @@
+{% extends 'base_master.html' %}
+{% load static %}
+
+{% block title %}注文_合数更新{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">注文_合数対応</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">注文_合数更新</h2>
+            <h4>ユニットの合数注文を取り消したい場合は、合数に0を入力してください。</h4>
+            <h4>納品が終了している日の合数は、変更できません(通常、喫食日{{adjust_days}}日前納品)。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    {% if disable_processing %}
+                    {% else %}
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">更新する</button>
+                    </div>
+                    {% endif %}
+                </form>
+                <div class="row mt-2">
+                    <a class="btn btn-secondary ml-2" href="{% url 'web_order:rice_orders'%}">キャンセル</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}

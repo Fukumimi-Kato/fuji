@@ -1,0 +1,58 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}元日注文設定マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">元日注文設定マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">元日注文設定マスタ確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:new_year_setting_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>適用年</th>
+                        <th>受付開始日</th>
+                        <th>受付締め切り日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:new_year_setting_update' obj.pk %}">{{ obj.year }}</a></td>
+                        <td>{{ obj.enable_date_from |date:"Y年m月d日" }}</td>
+                        <td>{{ obj.enable_date_to |date:"Y年m月d日" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base_master.html' %}
+{% load static %}
+
+{% block title %}施設情報詳細{% endblock %}
+
+{% block script %}
+    <style>
+        .wraptext {
+          white-space: pre-wrap;
+        }
+    </style>
+{% endblock %}
+
+{% block overview %}施設情報詳細{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">施設情報詳細</li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% if source_file %}
+<div class="row mt-1">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <a class="btn btn-info ml-2" href="{% url 'web_order:user_account_download' object.id %}">施設登録情報CSVダウンロード</a>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+{% endif %}
+<div class="row mt-1">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="header-title">{{ object.facility_name }}</h3><hr>
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>登録カルテ名：</strong>
+                    </div>
+                    <div class="col-9">
+                        {% if source_file %}
+                        {{ source_file }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>運用開始喫食日：</strong>
+                    </div>
+                    <div class="col-9">
+                        {% if enable_day %}
+                        {{ enable_day |date:"m月d日"}}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>会社名：</strong>
+                    </div>
+                    <div class="col-9">
+                        {{ object.company_name }}
+                        {% if parent %}
+                        (請求書送付先親会社-得意先コード：{{ parent_code }})
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>乾燥・冷凍区分：</strong>
+                    </div>
+                    <div class="col-9">
+                        {% if object.dry_cold_type == '乾燥' %}
+                            {{ object.dry_cold_type }}
+                        {% elif object.dry_cold_type == '冷凍' %}
+                            冷凍(直送)
+                        {% else %}
+                            冷凍(談から送る)
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>メールアドレス：</strong>
+                    </div>
+                    <div class="col-9">
+                        {{ object.email }}
+                    </div>
+                </div>
+
+                {% for unit in units %}
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>ユニット{{ forloop.counter }}：</strong>
+                    </div>
+                    <div class="col-9">
+                       {{ unit.unit_number }}.{{ unit.unit_name }}(得意先コード：{{ unit.unit_code }})【{{ unit.short_name }}】
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>食事区分：</strong>
+                    </div>
+                    <div class="col-9">
+                        {{ meals }}
+                    </div>
+                </div>
+
+                {% for menu in menus %}
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>{{ menu.0 }}：</strong>
+                    </div>
+                    <div class="col-9">
+                       {{ menu.1 }}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% for allergen in allergens %}
+                <div class="row mt-2">
+                    <div class="col-3">
+                        <strong>注文可能アレルギー{{ forloop.counter }}：</strong>
+                    </div>
+                    <div class="col-9">
+                       {{ allergen.allergen_name }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+    <a href="{% url 'web_order:user_masters' %}">一覧に戻る</a>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base_master.html' %}
+{% load static %}
+
+{% block title %}単価情報追加{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">単価情報追加</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">単価情報追加</h2>
+            <h4>契約外の入力単価は無視されます。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<form method="POST" enctype='multipart/form-data'>
+{% csrf_token %}
+<div class="row">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h4>基本食：</h4>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.basic_breakfast_price.id_for_label }}">{{ form.basic_breakfast_price.label }}:現行単価{{basic_price_breakfast}}円</label>
+                    {{ form.basic_breakfast_price }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.basic_lunch_price.id_for_label }}">{{ form.basic_lunch_price.label }}:現行単価{{basic_price_lunch}}円</label>
+                    {{ form.basic_lunch_price }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.basic_dinner_price.id_for_label }}">{{ form.basic_dinner_price.label }}:現行単価{{basic_price_dinner}}円</label>
+                    {{ form.basic_dinner_price }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h4>嚥下食：</h4>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.enge_breakfast_price.id_for_label }}">{{ form.enge_breakfast_price.label }}:現行単価{{enge_price_breakfast}}円</label>
+                    {{ form.enge_breakfast_price }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.enge_lunch_price.id_for_label }}">{{ form.enge_lunch_price.label }}:現行単価{{enge_price_lunch}}円</label>
+                    {{ form.enge_lunch_price }}
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.enge_dinner_price.id_for_label }}">{{ form.enge_dinner_price.label }}:現行単価{{enge_price_dinner}}円</label>
+                    {{ form.enge_dinner_price }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                {% if disable_day_error %}
+                {% else %}
+                    {{ form.enable_day.errors }}
+                {% endif %}
+                <div class="mb-2">
+                    <label class="form-label" for="{{ form.enable_day.id_for_label }}">{{ form.enable_day.label }}</label>
+                    {{ form.enable_day }}
+                </div>
+                <div class="row mb-2">
+                    <button type="submit" class="btn btn-primary">追加する</button>
+                </div>
+                <div class="row mb-2">
+                    <a class="btn btn-secondary ml-2" href="{% url 'web_order:new_price_history' user.id %}">キャンセル</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3"></div>
+</div>
+</form>
+{% endblock %}

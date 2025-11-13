@@ -1,0 +1,108 @@
+.navigation {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    grid-template-rows: 50px 20px;
+}
+
+.prev-week {
+  /* 列の1本目から2本目のグリッドラインまで */
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+.next-week {
+  /* 列の1本目から2本目のグリッドラインまで */
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  margin: 0 0 0 auto;
+}
+
+.orderform {
+    display: grid;
+    grid-template-columns: 20% 1fr;
+}
+
+.menus {
+  /* 列の1本目から2本目のグリッドラインまで */
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.cells {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+.order-allergen{
+    float: left;
+}
+
+/* <input type="number">のスピンボタン（上下の矢印ボタン）をCSSで非表示にする */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance:textfield;
+}
+
+.colour-cadetblue {
+    background-color: cadetblue;
+}
+
+.colour-sandybrown {
+    background-color: sandybrown;
+}
+
+.colour-bisque {
+    background-color: bisque;
+}
+
+.colour-cornflowerblue {
+    background-color: cornflowerblue;
+}
+
+.colour-salmon {
+    background-color: salmon;
+}
+
+.col-base{
+    position: relative;
+    padding-right: 2px;
+    padding-left: 2px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    float: left;
+}
+
+.col-100 { width: 100%; }
+
+/* 一週間分を1行で入力できるように、7カラムに分割する */
+.col-1-7 { width: 14.284%; }
+.col-1-6 { width: 16.664%; }
+
+.col-45-100 { width: 45%; }
+.col-22-100 { width: 22.5%; }
+.col-18-100 { width: 18%; }
+.col-17-100 { width: 17%; }
+.col-10-100 { width: 10%; }
+.col-5-100 { width: 5%; }
+
+.ml-4{
+    margin-left: 4px;
+}
+
+.tr{
+    display: table-row;
+}
+
+.del_chat{
+  font-size: 0.8em;
+}

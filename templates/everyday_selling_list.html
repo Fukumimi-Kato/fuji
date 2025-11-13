@@ -1,0 +1,64 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}販売固定商品マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">販売固定商品マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">販売固定商品マスタ確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:everyday_selling_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>ユニット名</th>
+                        <th>商品コード</th>
+                        <th>商品名</th>
+                        <th>売上数量</th>
+                        <th>売上単価</th>
+                        <th>有効日(売上日)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:everyday_selling_update' obj.pk %}">{{ obj.unit_name.unit_name }}</a></td>
+                        <td>{{ obj.product_code }}</td>
+                        <td>{{ obj.product_name }}</td>
+                        <td>{{ obj.quantity }}</td>
+                        <td>{{ obj.price |intcomma }}</td>
+                        <td>{{ obj.enable |date:"Y年m月d日"}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

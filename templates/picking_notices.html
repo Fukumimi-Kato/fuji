@@ -1,0 +1,46 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block title %}ピッキング結果備考一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">ピッキング結果備考一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">ピッキング結果備考ファイル一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+
+                            <thead>
+                                <tr>
+                                    <th>製造日</th>
+                                    <th>備考内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in notice_list %}
+                                <tr>
+                                    <td><a href="{% url 'web_order:picking_histories' %}?cooking_day={{ obj.0 |date:'Y-m-d' }}">{{ obj.0 |date:"Y年m月d日" }}</a></td>
+                                    <td>{{ obj.1 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>
+{% endblock %}

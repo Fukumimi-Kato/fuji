@@ -1,0 +1,64 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load in_group %}
+
+{% block title %}料理写真一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">料理写真一覧</li>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">料理写真一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<form action="" method="get">
+    <p class='col-4'>
+        <input class="form-control" type="text" name="kw" placeholder="検索">
+    </p>
+</form>
+
+<div class="card shadow mb-3">
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>料理名</th>
+                        <th>写真データ</th>
+                        <th>温め・冷蔵</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td><a href="{% url 'web_order:food_photo_update' obj.pk %}">{{ obj.food_name }}</a></td>
+                            <td>{{ obj.photo_file |cut:"photos/" }}</td>
+                            <td>{{ obj.hot_cool }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

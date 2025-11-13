@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}トップページ ｜ ふじフードサービス Web注文システム{% endblock %}
+{% load templatefilter %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">ふじフードサービス Web注文システム</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#cardCollpase1" role="button" aria-expanded="false" aria-controls="cardCollpase5"><i class="mdi mdi-minus"></i></a>
+                    </div>
+                    <h4 class="header-title mb-0">ふじフードサービスからのお知らせ</h4>
+
+                    <div id="cardCollpase1" class="collapse pt-3 show">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-centered mb-0">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>内容</th>
+                                        <th>更新日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for obj in qs1 %}
+                                    <tr>
+                                        <td class="fw-bold text-danger">{% if obj.updated_at|is_new %}New{% endif %}</td>
+                                        <td><a href="{% url 'web_order:communication_detail' obj.pk %}">{{ obj.title }}</a></td>
+                                        <td>{{ obj.updated_at |date:"Y年m月d日"}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div> <!-- end table responsive-->
+                    </div> <!-- collapsed end -->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+
+    </div>
+    <!-- end row -->
+</div>
+{% endblock %}

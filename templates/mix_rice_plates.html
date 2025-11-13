@@ -1,0 +1,68 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}混ぜご飯マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">混ぜご飯マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">混ぜご飯マスタ確認</h2>
+            <h4><span class="text-danger">混ぜご飯の素を使用するもの</span>：1つの献立名から混ぜご飯の具と液の計量表を2種類出力します。</h4>
+            <h4><span class="text-danger">個別食材出力対象</span>：計量表に出力される混ぜご飯計量表の「材料配分」シートに各具材の割合を出力します。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:mix_rice_plate_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>混ぜご飯名称</th>
+                        <th>混ぜご飯の素を使用するもの</th>
+                        <th>個別食材出力対象</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:mix_rice_plate_update' obj.pk %}">{{ obj.name }}</a></td>
+                        {% if obj.is_mix_package %}
+                            <td>使用する</td>
+                        {% else %}
+                            <td>使用しない</td>
+                        {% endif %}
+                        {% if obj.is_write_rate %}
+                            <td>出力対象</td>
+                        {% else %}
+                            <td>出力対象でない</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

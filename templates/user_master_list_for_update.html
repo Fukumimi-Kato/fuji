@@ -1,0 +1,233 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}施設情報{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">施設情報確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">施設情報確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-9">
+        <div class="card shadow mb-3">
+            <div class="card-body">
+                <div class="table-responsive">
+
+                    <table class="table table-striped dt-responsive nowrap w-100">
+                        <thead>
+                            <tr>
+                                <th>施設名</th>
+                                <th>顧客コード</th>
+                                <th>会社名</th>
+                                <th>ユニット</th>
+                                <th>契約開始喫食日</th>
+                                <th>運用状態</th>
+                                <th>乾燥・冷凍</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obj in object_list %}
+                            <tr>
+                                <td><a href="{% url 'web_order:user_dry_cold' obj.pk %}">{{ obj.name }}</a></td>
+                                <td>{{ obj.code }}</td>
+                                {% if obj.company_name %}
+                                    <td>{{ obj.company_name }}</td>
+                                {% else %}
+                                    <td>{{ obj.name }}</td>
+                                {% endif %}
+                                <td>{{ obj.unit }}</td>
+                                {% if obj.start %}
+                                    <td>{{ obj.start |date:"Y年m月d日"}}</td>
+                                {% else %}
+                                    <td>-</td>
+                                {% endif %}
+                                <td>{{ obj.status }}</td>
+                                <td>{{ obj.dry_cold }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <div>絞込条件</div>
+        <form method="GET" enctype='multipart/form-data'>
+            <button class="btn btn-info mb-1" type=“submit” name="clear" value="1">×　絞り込み条件を解除</button>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    献立種類
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="radio" id="menu_all_radio" name="menu_name" value="all" onclick="submit();" {% if menu_name == "all" %}checked{% endif %} />
+                        <label for="menu_all_radio">全て</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="menu_basic_radio" name="menu_name" value="basic" onclick="submit();" {% if menu_name == "basic" %}checked{% endif %}  />
+                        <label for="menu_basic_radio">基本食</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="menu_enge_radio" name="menu_name" value="enge" onclick="submit();" {% if menu_name == "enge" %}checked{% endif %} />
+                        <label for="menu_enge_radio">嚥下</label> </div>
+                </div>
+            </div>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    汁オプション
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="checkbox" id="bb_check" name="option" value="1" onclick="submit();" {% if "1" in options %}checked{% endif %} />
+                        <label for="bb_check">朝　汁具</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="bs_check" name="option" value="2" onclick="submit();"  {% if "2" in options %}checked{% endif %} />
+                        <label for="bs_check">朝　具のみ</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="bn_check" name="option" value="3" onclick="submit();"  {% if "3" in options %}checked{% endif %} />
+                        <label for="bn_check">朝　汁なし</label>
+                    </div>
+
+                    <div class="py-1">
+                        <input type="checkbox" id="lb_check" name="option" value="4" onclick="submit();"  {% if "4" in options %}checked{% endif %} />
+                        <label for="lb_check">昼　汁具</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="ls_check" name="option" value="5" onclick="submit();"  {% if "5" in options %}checked{% endif %} />
+                        <label for="ls_check">昼　具のみ</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="ln_check" name="option" value="6" onclick="submit();"  {% if "6" in options %}checked{% endif %} />
+                        <label for="ln_check">昼　汁なし</label>
+                    </div>
+
+                    <div class="py-1">
+                        <input type="checkbox" id="db_check" name="option" value="7" onclick="submit();"  {% if "7" in options %}checked{% endif %} />
+                        <label for="db_check">夕　汁具</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="ds_check" name="option" value="8" onclick="submit();"  {% if "8" in options %}checked{% endif %} />
+                        <label for="ds_check">夕　具のみ</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="checkbox" id="dn_check" name="option" value="9" onclick="submit();"  {% if "9" in options %}checked{% endif %} />
+                        <label for="dn_check">夕　汁なし</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    乾燥冷凍区分
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="radio" id="dry_cold_all_radio" name="dry_cold" value="all" onclick="submit();" {% if dry_cold == "all" %}checked{% endif %} />
+                        <label for="dry_cold_all_radio">全て</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="dry_cold_dry_radio" name="dry_cold" value="dry" onclick="submit();" {% if dry_cold == "dry" %}checked{% endif %} />
+                        <label for="dry_cold_dry_radio">乾燥</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="dry_cold_cold_radio" name="dry_cold" value="cold" onclick="submit();" {% if dry_cold == "cold" %}checked{% endif %} />
+                        <label for="dry_cold_cold_radio">冷凍</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    運用状態
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="radio" id="status_all_radio" name="status" value="all" onclick="submit();" {% if status == "all" %}checked{% endif %} />
+                        <label for="status_all_radio">全て</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="status_running_radio" name="status" value="running" onclick="submit();" {% if status == "running" %}checked{% endif %} />
+                        <label for="status_running_radio">運用中</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="status_order_stop_radio" name="status" value="order_stop" onclick="submit();" {% if status == "order_stop" %}checked{% endif %} />
+                        <label for="status_order_stop_radio">注文停止</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="status_login_stop_radio" name="status" value="login_stop" onclick="submit();"  {% if status == "login_stop" %}checked{% endif %} />
+                        <label for="status_login_stop_radio">ログイン停止</label>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    親会社
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="radio" id="parent_all_radio" name="parent" value="" onclick="submit();" {% if parent == "" %}checked{% endif %} />
+                        <label for="parent_all_radio">全て</label>
+                    </div>
+                    <div class="py-1">
+                        <input type="radio" id="parent_none_radio" name="parent" value="0" onclick="submit();" {% if parent == "0" %}checked{% endif %} />
+                        <label for="parent_none_radio">なし</label>
+                    </div>
+                    {% for parent_company in parent_companies %}
+                        <div class="py-1">
+                            {% if parent_company.0 %}
+                                <input type="radio" id="parent_{{parent_company.1.id}}" name="parent" value="{{parent_company.1.id}}" onclick="submit();" checked />
+                            {% else %}
+                                <input type="radio" id="parent_{{parent_company.1.id}}" name="parent" value="{{parent_company.1.id}}" onclick="submit();" />
+                            {% endif %}
+                            <label for="parent_{{parent_company.1.id}}">{{parent_company.1.company_name}}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card border-left-success shadow">
+                <div class="card-header">
+                    施設
+                </div>
+                <div class="card-body py-0">
+                    <div class="py-1">
+                        <input type="radio" id="user_all_radio" name="user" onclick="submit();" value="" {% if user == "0" %}checked{% endif %} />
+                        <label for="user_all_radio">全て</label>
+                    </div>
+                    {% for filter_user in filter_users %}
+                        <div class="py-1">
+                            {% if filter_user.0 %}
+                                <input type="radio" id="user_{{filter_user.1.id}}" name="user" value="{{filter_user.1.id}}" onclick="submit();" checked />
+                            {% else %}
+                                <input type="radio" id="user_{{filter_user.1.id}}" name="user" value="{{filter_user.1.id}}" onclick="submit();" />
+                            {% endif %}
+                            <label for="user_{{filter_user.1.id}}">{{filter_user.1.facility_name}}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

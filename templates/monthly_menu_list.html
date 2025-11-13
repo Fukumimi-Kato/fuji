@@ -1,0 +1,106 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}盛付指示書作成{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">盛付指示書作成</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mt-2">盛付指示書作成</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% else %}
+            <p class="p-2 m-1">　</p>
+        {% endif %}
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="mb-4 col-md-5">
+        <form action="{% url 'web_order:exec_setout_direction' %}" method="POST">
+            {% csrf_token %}
+            {{ form.in_date }}
+    </div>
+        <button type="submit" class='btn btn-primary mb-4 col-md-7'>盛付指示書の出力</button>
+        </form>
+</div> <!-- end table responsive-->
+
+<div class="card shadow mt-4 mb-3">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h3 class="mt-2">料理写真が未登録の一覧</h3>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+    <div class="card-body px-4 mt-2 mb-0 d-flex flex-row">
+        <div class="col-4">
+            <form action="{% url 'web_order:monthly_menu_list' %}?prev={{ from_date|date:"Ymd" }}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">＜＜　前月　</button>
+            </form>
+        </div>
+        <div class="col-4">
+            <form action="{% url 'web_order:monthly_menu_list' %}?this" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">今月分を表示する</button>
+            </form>
+        </div>
+        <div class="col-2">
+            <form action="{% url 'web_order:monthly_menu_list' %}?next={{ from_date|date:"Ymd" }}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">　翌月　＞＞</button>
+            </form>
+        </div>
+        <div class="col-1">
+            <form action="{% url 'web_order:monthly_menu_list' %}" method="POST">
+                {% csrf_token %}
+                {{ form.in_date }}
+        </div>
+        <div class="col-1">
+            <button type="submit" class="btn btn-dark">表示</button>
+            </form>
+
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+
+                <thead>
+                    <tr>
+                        <th>喫食日</th>
+                        <th>食事区分</th>
+                        <th>料理名</th>
+                        <th>オプション</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td>{{ obj.eating_day |date:"Y年m月d日" }}</td>
+                        <td>{{ obj.meal_name }}</td>
+                        <td><a href="{% url 'web_order:food_photo_list' %}?kw={{ obj.food_name }}">{{ obj.food_name }}</a></td></td></td>
+                        <td>{{ obj.option }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

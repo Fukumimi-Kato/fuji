@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load templatefilter %}
+
+{% block title %}アレルギー対応／注文フォーム{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">アレルギー対応／注文フォーム</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">アレルギー対応／注文フォーム</h2>
+                {% if holiday_name %}
+                    <h3 class="mb-3 text-pink">運送便の{{ holiday_name }}による仕入れの都合により、現在登録・変更は行えません。</h3>
+                {% else %}
+                    <h3 class="mb-3 text-pink">{{ from_date |date:"Mj日" }}以降の喫食分が登録・変更可能です</h3>
+                    <p class="text-muted">アレルギーの食数は通常の食数に追加注文する形となります。<br/>
+                        通常メニューを25食注文後、こちらのフォームで1食を指定した場合、24食と1食には「<em>なりません</em>」</p>
+                {% endif %}
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% for form in formset %}
+                {% for error in form.non_field_errors %}
+                    <p class="p-2 m-1 alert alert-danger">{{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    <!-- end row -->
+    {% if not holiday_name %}
+    <div class="row">
+        <div class="order-allergen">
+
+            <div class="col-base col-18-100 colour-bisque">ユニット名</div>
+            <div class="col-base col-18-100 colour-bisque">喫食日</div>
+            <div class="col-base col-18-100 colour-bisque">食事区分</div>
+            <div class="col-base col-18-100 colour-bisque">献立種類</div>
+            <div class="col-base col-18-100 colour-bisque">アレルギー</div>
+            <div class="col-base col-10-100 colour-bisque">食数</div>
+
+            <form action="" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    <div class="col-base col-18-100">{{ form.unit_name }}</div>
+                    <div class="col-base col-18-100">{{ form.eating_day }}</div>
+                    <div class="col-base col-18-100">{{ form.meal_name }}</div>
+                    <div class="col-base col-18-100">{{ form.menu_name }}</div>
+                    <div class="col-base col-18-100">{{ form.allergen }}</div>
+                    <div class="col-base col-10-100">{{ form.quantity }}</div>
+                    {{ form.id }}
+                {% endfor %}
+                {% if error_message is not None %}
+                    <div class="input_form_error col-100 btn btn-warning">{{ error_message }}</div>
+                {% endif %}
+                <input class="btn btn-primary col-base col-100" type="button" value="上記の内容で登録する" onclick="submit();">
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<!-- デバッグ用
+
+<p>unit_list: {{ unit_list }}</p>
+<p>menu_list: {{ menu_list }}</p>
+<p>meal_list: {{ meal_list }}</p>
+
+<p>unit_cells: {{ unit_cells }}</p>
+<p>meal_cells: {{ meal_cells }}</p>
+<p>menu_cells: {{ menu_cells }}</p>
+
+<p>unit_cycle: {{ unit_cycle }}</p>
+<p>menu_cycle: {{ menu_cycle }}</p>
+-->
+
+<script>
+// templateで自動的に出力されるlabel要素を非表示に
+let ele = document.getElementsByTagName('label');
+
+for(i=0;i<ele.length;i++){
+    ele[i].style.display ="none";
+}
+
+let tr_tag = document.getElementsByTagName('tr');
+
+for(i=0;i<tr_tag.length;i++){
+    tr_tag[i].style.display ="none";
+}
+
+{# 日付入力欄に、フォーカスアウト時のイベントを設定する #}
+{% if change_date %}
+{# 契約変更日 #}
+let change_date = new Date("{{ change_date |date:"Y-m-d" }}");
+
+{# インデックスを取得するための正規表現パターン #}
+const myRe = /\d+/g;
+
+{# 存在する入力行の全ての喫食日入力項目に、変更(フォーカスアウト)イベントを追加 #}
+for (var i =0; i < {{count}}; i++){
+    var date_id = 'id_form-' + i + '-eating_day'
+    $('#'+date_id).on('blur', function(){
+        {# 直接iを指定しても、function起動時はループ後の値になるため、喫食日入力のIDから取得 #}
+        var id_tmp = $(this).attr('id');
+        var id = id_tmp.match(myRe);
+
+        {# 対象行の食事区分要素の取得 #}
+        var date_value = new Date($(this).val());
+        var ele = '#id_form-' + id + '-meal_name';
+
+        {# 食事区分プルダウンの内容を更新 #}
+        $(ele).children('option').remove();
+        if (date_value < change_date){
+            $(ele).append('<option value="">選択してください</option>');
+            {% for meal in reserved_meal_list %}
+                $(ele).append('<option value="{{meal.meal_name_id}}">{{meal.meal_name}}</option>');
+            {% endfor %}
+        }else{
+            $(ele).append('<option value="">選択してください</option>');
+            {% for meal in raw_meal_list %}
+                $(ele).append('<option value="{{meal.meal_name_id}}">{{meal.meal_name}}</option>');
+            {% endfor %}
+        }
+    });
+
+    {# 初期状態の設定 #}
+    $('#'+date_id).blur();
+}
+
+{# 選択状態の復元 #}
+{% for meal in meal_select %}
+    {# 対象行の食事区分要素の取得 #}
+    var meal_ele = '#id_form-' + {{forloop.counter0}} + '-meal_name';
+    $(meal_ele).val("{{ meal }}");
+{% endfor %}
+
+
+{% endif %}
+</script>
+
+{% endblock %}

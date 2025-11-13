@@ -1,0 +1,457 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load templatefilter %}
+{% block title %}盛付指示書登録{% endblock %}
+
+{% block script %}
+    <style>
+        textarea {
+        width: 250px;
+        height: 7em;
+        }
+
+        textarea.def1 {
+        line-height: 150%;
+        }
+    </style>
+{% endblock %}
+
+{% block overview %}盛付指示書登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">盛付指示書登録</li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<form action="{% url 'web_order:food_register' %}"  method="GET">
+    <div class="row">
+        <div class='col-3'>
+            <input type="date" name="date" class="col-3 form-control" value='{{ target_date |date:"Y-m-d" }}' >
+        </div>
+        <div class='col-3'>
+            <input class="col-3 btn btn-info col-base col-100" type="submit" value="検索">
+        </div>
+    </div>
+</form>
+
+{% if menu %}
+    <h2>{{ menu.eating_day |date:"Y年m月d日" }}({{ menu.meal_name }})</h2>
+{% endif %}
+<div class="row">
+    <form method="POST" action="{% url 'web_order:food_register' %} " enctype="multipart/form-data">
+        {% csrf_token %}
+        {{formset.management_form}}
+        <input type="hidden" name="direction_type" value="{{ direction_type }}">
+        <input type="hidden" name="meal_name" value="{{ menu.meal_name }}">
+        {% if food_photo %}
+            <input type="hidden" name="food_id" value="{{ food_photo.0.id }}">
+            <input type="hidden" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            {% for form in formset %}
+            {{ form.id }}
+                {% with food_photo|eval_index:forloop.counter0 as res1 %}
+                <div class="card">
+                    <h2>{{ res1 }}</h2>
+                    <div class="card-body">
+                        <table class="col-12">
+                            <thead>
+                            <tr>
+                                <th>写真</th>
+                                <th>説明(空にする場合は■を入力)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div id="drop-zone-{{forloop.counter}}" style="border: 1px solid; padding: 30px;" class="col-12">
+                                        <p>ファイルをドラッグ＆ドロップもしくは</p>
+                                        {{ form.photo_file }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <select id="direction_list1_{{forloop.counter}}" class="col-12">
+                                        <option value="">--定型文を選択--</option>
+                                        {% for direction in directions %}
+                                            <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {{ form.direction }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                    <div class="w-50">
+                                        <h3>登録済み画像</h3>
+                                        {% if res1.photo_file %}
+                                            <img src="{{ res1.photo_file.url }}" alt="" width="150" height="130">
+                                        {% endif %}
+                                    </div>
+                                    <div class="w-50">
+                                        <h3>アップロードする画像</h3>
+                                        <div id="preview-{{forloop.counter}}"></div>
+                                    </div>
+                                        </div>
+                                </td>
+                                <td>
+                                    <select id="direction_list2_{{forloop.counter}}" class="col-12">
+                                        <option value="">--定型文を選択--</option>
+                                        {% for direction in directions %}
+                                            <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {{ form.direction2 }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endwith %}
+            {% endfor %}
+        {% else %}
+            <input type="hidden" name="enge_id" value="{{ enge.0.id }}">
+            <input type="hidden" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            <input type="hidden" name="menu_id" value="{{ menu.id }}">
+            {% for form in formset %}
+                {{ form.id }}
+                {% with enge|eval_index:forloop.counter0 as res1 %}
+                <div class="card">
+                    <h2>{{ res1.menu.food_name }}</h2>
+                    <div class="card-body">
+                        <table class="col-12">
+                            <thead>
+                                <tr>
+                                    <th>ソフト食説明(空にする場合は■を入力)</th>
+                                    <th>ミキサー食説明(空にする場合は■を入力)</th>
+                                    <th>ゼリー食説明(空にする場合は■を入力)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select id="soft_list1_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.soft_direction }}
+                                        <select id="soft_list2_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.soft_direction2 }}
+                                        <select id="soft_list3_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.soft_direction3 }}
+                                        <select id="soft_list4_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.soft_direction4 }}
+                                        <select id="soft_list5_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.soft_direction5 }}
+                                    </td>
+                                    <td>
+                                        <select id="mixer_list1_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.mixer_direction }}
+                                        <select id="mixer_list2_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.mixer_direction2 }}
+                                        <select id="mixer_list3_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.mixer_direction3 }}
+                                        <select id="mixer_list4_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.mixer_direction4 }}
+                                        <select id="mixer_list5_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.mixer_direction5 }}
+                                    </td>
+                                    <td>
+                                        <select id="jelly_list1_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.jelly_direction }}
+                                        <select id="jelly_list2_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.jelly_direction2 }}
+                                        <select id="jelly_list3_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.jelly_direction3 }}
+                                        <select id="jelly_list4_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.jelly_direction4 }}
+                                        <select id="jelly_list5_{{forloop.counter}}" class="col-12">
+                                            <option value="">--定型文を選択--</option>
+                                            {% for direction in directions %}
+                                                <option value="{{direction.id}}">{{direction.shortening}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {{ form.jelly_direction5 }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endwith %}
+            {% endfor %}
+        {% endif %}
+        {% if formset %}
+            <input type="hidden" name="in_date" value="{{ target_date|date:'Y-m-d' }}">
+            <input class="btn btn-primary mb-3 col-base col-100" type="button" value="この料理の盛付指示を確定する" onclick="submit();">
+
+            <div>
+                {% if check_value == 'on' %}
+                    <input type="checkbox" id="enge_option_output" name="enge_option_output" checked>
+                {% else %}
+                    <input type="checkbox" id="enge_option_output" name="enge_option_output">
+                {% endif %}
+                <label for="enge_option_output">嚥下の汁具を盛付指示書に出力する。</label>
+            </div>
+            <input class="btn btn-info col-base col-100" type="submit"
+                   value="{{ menu.eating_day |date:'Y年m月d日' }}の盛付指示書を作成する" formaction="{% url 'web_order:exec_setout_create' %}" >
+        {% endif %}
+    </form>
+</div>
+
+{% if formset %}
+<div class="card-body px-4 mt-2 mb-0 d-flex flex-row">
+    <div class="col-3">
+        <form action="{% url 'web_order:food_register' %}" method="GET">
+            <input type="hidden" name="food_id" value="{{ food_photo.0.id }}">
+            <input type="hidden" name="enge_id" value="{{ enge.0.id }}">
+            <input type="hidden" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            <input type="hidden" name="meal_name" value="{{ menu.meal_name }}">
+            <button type="submit" class="btn btn-dark" name="prev" value="on">＜＜　前の料理　</button>
+        </form>
+    </div>
+    <div class="col-8">
+    </div>
+    <div class="col-3">
+        <form action="{% url 'web_order:food_register' %}" method="GET">
+            <input type="hidden" name="food_id" value="{{ food_photo.0.id }}">
+            <input type="hidden" name="enge_id" value="{{ enge.0.id }}">
+            <input type="hidden" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            <input type="hidden" name="meal_name" value="{{ menu.meal_name }}">
+            <button type="submit" class="btn btn-dark" name="next" value="on">　次の料理　＞＞</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    {% if food_photo %}
+    {% for form in formset %}
+        var dropZone_{{forloop.counter}} = document.getElementById('drop-zone-{{forloop.counter}}');
+        var preview_{{forloop.counter}} = document.getElementById('preview-{{forloop.counter}}');
+        var fileInput_{{forloop.counter}} = document.getElementById('id_form-{{forloop.counter0}}-photo_file');
+
+        dropZone_{{forloop.counter}}.addEventListener('dragover', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.style.background = '#e1e7f0';
+        }, false);
+
+        dropZone_{{forloop.counter}}.addEventListener('dragleave', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.style.background = '#ffffff';
+        }, false);
+
+        fileInput_{{forloop.counter}}.addEventListener('change', function () {
+            previewFile(this.files[0]);
+        });
+
+        dropZone_{{forloop.counter}}.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.style.background = '#ffffff'; //背景色を白に戻す
+            var files = e.dataTransfer.files; //ドロップしたファイルを取得
+            if (files.length > 1) return alert('アップロードできるファイルは1つだけです。');
+            fileInput_{{forloop.counter}}.files = files; //inputのvalueをドラッグしたファイルに置き換える。
+            previewFile_{{forloop.counter}}(files[0]);
+        }, false);
+
+        function previewFile_{{forloop.counter}}(file) {
+            /* FileReaderで読み込み、プレビュー画像を表示。 */
+            var fr = new FileReader();
+            fr.onload = function() {
+                var img = document.createElement('img');
+                img.setAttribute('src', fr.result);
+                img.setAttribute('width', 235);
+                img.setAttribute('height', 135);
+                preview_{{forloop.counter}}.innerHTML = '';
+                preview_{{forloop.counter}}.appendChild(img);
+            };
+            fr.readAsDataURL(file);
+        }
+    {% endfor %}
+    {% endif %}
+
+    function setDiretion(area, selected) {
+        fetch("{% url 'web_order:get-food-direction' %}?direction_id=" + selected, {method: "GET"})
+        .then(function(response) {
+                if (response.ok) {
+                    response.text().then(function(text){
+                        area.value=text;
+                    });
+                } else {
+                    console.log('fetch error');
+                    area.value='失敗';
+                }
+            });
+    }
+
+    function callSetDirection(element, area_id) {
+        var index = element.selectedIndex;
+        if (index != 0)
+        {
+            setDiretion(document.getElementById(area_id), element.options[index].value);
+        }
+    }
+
+    {% if food_photo %}
+        {# 通常食用 #}
+        {% for form in formset %}
+           var directionSelect1_{{forloop.counter0}} = document.getElementById('direction_list1_{{forloop.counter}}');
+           directionSelect1_{{forloop.counter0}}.addEventListener('change', function () {
+                callSetDirection(this, 'id_form-{{forloop.counter0}}-direction');
+            });
+
+           var directionSelect2_{{forloop.counter0}} = document.getElementById('direction_list2_{{forloop.counter}}');
+            directionSelect2_{{forloop.counter0}}.addEventListener('change', function () {
+                callSetDirection(this, 'id_form-{{forloop.counter0}}-direction2');
+            });
+        {% endfor %}
+    {% else %}
+        {% for form in formset %}
+        {# 嚥下食用 #}
+       var s_directionSelect1 = document.getElementById('soft_list1_{{forloop.counter}}');
+       s_directionSelect1.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-soft_direction');
+        });
+       var s_directionSelect2 = document.getElementById('soft_list2_{{forloop.counter}}');
+       s_directionSelect2.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-soft_direction2');
+        });
+       var s_directionSelect3 = document.getElementById('soft_list3_{{forloop.counter}}');
+       s_directionSelect3.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-soft_direction3');
+        });
+       var s_directionSelect4 = document.getElementById('soft_list4_{{forloop.counter}}');
+       s_directionSelect4.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-soft_direction4');
+        });
+       var s_directionSelect5 = document.getElementById('soft_list5_{{forloop.counter}}');
+       s_directionSelect5.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-soft_direction5');
+        });
+
+       var m_directionSelect1 = document.getElementById('mixer_list1_{{forloop.counter}}');
+       m_directionSelect1.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-mixer_direction');
+        });
+       var m_directionSelect2 = document.getElementById('mixer_list2_{{forloop.counter}}');
+       m_directionSelect2.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-mixer_direction2');
+        });
+       var m_directionSelect3 = document.getElementById('mixer_list3_{{forloop.counter}}');
+       m_directionSelect3.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-mixer_direction3');
+        });
+       var m_directionSelect4 = document.getElementById('mixer_list4_{{forloop.counter}}');
+       m_directionSelect4.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-mixer_direction4');
+        });
+       var m_directionSelect5 = document.getElementById('mixer_list5_{{forloop.counter}}');
+       m_directionSelect5.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-mixer_direction5');
+        });
+
+       var j_directionSelect1 = document.getElementById('jelly_list1_{{forloop.counter}}');
+       j_directionSelect1.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-jelly_direction');
+        });
+       var j_directionSelect2 = document.getElementById('jelly_list2_{{forloop.counter}}');
+       j_directionSelect2.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-jelly_direction2');
+        });
+       var j_directionSelect3 = document.getElementById('jelly_list3_{{forloop.counter}}');
+       j_directionSelect3.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-jelly_direction3');
+        });
+       var j_directionSelect4 = document.getElementById('jelly_list4_{{forloop.counter}}');
+       j_directionSelect4.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-jelly_direction4');
+        });
+       var j_directionSelect5 = document.getElementById('jelly_list5_{{forloop.counter}}');
+       j_directionSelect5.addEventListener('change', function () {
+            callSetDirection(this, 'id_form-{{forloop.counter0}}-jelly_direction5');
+        });
+        {% endfor %}
+    {% endif %}
+
+</script>
+{% endblock %}

@@ -1,0 +1,295 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}アレルギー連携一覧{% endblock %}
+
+{% block overview %}アレルギー連携一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">アレルギー連携一覧</li>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="col-xl-12">
+        <h3 class="px-3">対象製造日検索:</h3>
+        <div class="form-group card-body px-4 mb-0 d-flex flex-row">
+            <div class="col-3 form-inline">
+                <form action="{% url 'web_order:plate_relation' %}" method="GET">
+                    <div class="col-9 mb-2 form-inline">
+                        <input type="date" class="form-control" name="cooking_day" value="{{ cooking_day }}">
+                    </div>
+                    <div class="col-12 form-inline">
+                        <button class="btn btn-primary mb-2" type="submit" formaction="{% url 'web_order:plate_relation' %}">検索</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12">
+        <h3 class="px-3">絞込条件:</h3>
+        <h4 class="px-3">複数選択、選択解除を行う場合は、Ctrlキーを押しながらクリックしてください。</h4>
+        <div class="card-body px-4 mb-0 d-flex flex-row">
+            {# 喫食日 #}
+            <div class="col-2 form-inline">
+                <div>喫食日：</div>
+                <select class="ml-3 form-control" name="cond_eating_day" id="id_cond_eating_day" size=2 multiple>
+                    {% for eating_day in eating_day_list %}
+                        <option value="{{ eating_day |date:"Y年n月j日" }}">{{ eating_day |date:"Y年n月j日" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 食事区分 #}
+            <div class="px-1 col-1 form-inline">
+                <div>食事区分：</div>
+                <select class="ml-3 form-control" name="cond_meal" id="id_cond_meal" size=3 multiple>
+                    {% for meal in meal_list %}
+                        <option value="{{ meal }}">{{ meal }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 料理名 #}
+            <div class="px-1 col-4 form-inline">
+                <div>料理名：</div>
+                <select class="ml-3 form-control" name="cond_plate" id="id_cond_plate" size=5 multiple>
+                    {% for plate in plate_list %}
+                        <option value="{{ plate }}">{{ plate }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 料理番号 #}
+            <div class="px-1 col-1 form-inline">
+                <div>料理番号：</div>
+                <select class="ml-3 form-control" name="cond_number" id="id_cond_number" size=5 multiple>
+                    {% for number in number_list %}
+                        <option value="{{ number }}">{{ number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 食事区分 #}
+            <div class="px-1 col-1 form-inline">
+                <div>食事区分：</div>
+                <select class=" ml-3 form-control" name="cond_menu" id="id_menu" size=4 multiple>
+                    {% for menu in menu_list %}
+                        <option value="{{ menu }}">{{ menu }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# アレルギー #}
+            <div class="px-1 col-2 form-inline">
+                <div>アレルギー：</div>
+                <select class="ml-1 form-inline form-control" name="cond_allergen" id="id_cond_allergen" size=5 multiple>
+                    {% for allergen in allergen_list %}
+                        <option value="{{ allergen }}">{{ allergen }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-info mb-2" type="button" id="cond_reset">
+            絞込条件クリア
+            </button>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    <input type="hidden" name="cooking_day" value="{{ cooking_day }}">
+                    <table id="plate-relation-table" class="table dt-responsive nowrap w-100 px-3">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>喫食日</th>
+                            <th>食事区分</th>
+                            <th>料理名</th>
+                            <th>アレルギー</th>
+                            <th>代替食</th>
+                        </tr>
+                        </thead>
+                        <tbody id="relation-table-body">
+                        {% for item in items %}
+                        {% if item.menu_name == "ソフト" %}
+                            <tr class="row_display text-black bg-pink">
+                        {% elif item.menu_name == "ミキサー" %}
+                            <tr class="row_display text-black bg-warning">
+                        {% elif item.menu_name == "ゼリー" %}
+                            <tr class="row_display text-black bg-danger">
+                        {% else %}
+                            <tr class="row_display">
+                        {% endif %}
+                            <td>
+                                <button class="btn-row-add btn btn-info mb-2" type="button" name="add_{{ item.id }}">
+                                    追加
+                                </button>
+                            </td>
+                            <td>{{ item.eating_day }}</td>
+                            <td>{{ item.meal_name }}</td>
+                            <td>{{ item.source_name }}</td>
+                            <td>{{ item.allergen }}</td>
+                            <td>
+                                <select class="form-control", name="allergen_plate_{{item.id}}">
+                                    <option value="0">--紐づけ先なし--</option>
+                                    {% for plate in item.allergens %}
+                                        <option value="{{plate.0}}" {% if plate.0 == item.selected %} selected {% endif %}>
+                                            {{ plate.1 }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td style="display:none;">{{ item.allergen_name }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if cooking_day %}
+                        <button class="btn btn-primary mb-2" type="submit" formaction="{% url 'web_order:plate_relation' %}">更新</button>
+                    {% else %}
+                        <button class="btn btn-primary mb-2" type="submit" formaction="" disabled>更新</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        function set_list_display() {
+            var eating_opt = $('#id_cond_eating_day').val();
+            var meal_opt = $('#id_cond_meal').val();
+            var plate_opt = $('#id_cond_plate').val();
+            var number_opt = $('#id_cond_number').val();
+            var menu_opt = $('#id_menu').val();
+            var allergen_opt = $('#id_cond_allergen').val();
+            $('.row_display').each(function(index, element) {
+                // 全部未選択なら全表示
+                if (eating_opt == 0 && meal_opt.length == 0 && plate_opt == 0 &&
+                    number_opt == 0 && menu_opt == 0 && allergen_opt == 0)
+                {
+                    $(element).css('display', 'table-row');
+                    var cl = $(element).children('td')[5];
+                    var select_element = $(cl).children()[0];
+                    $(select_element).prop('disabled', false);
+                } else {
+                    var children = $(element).children();
+
+                    // 喫食日条件
+                    var is_hit_eating = true;
+                    if (eating_opt.length > 0) {
+                        var eating_value = children[1].innerHTML;
+                        console.log(eating_value);
+                        console.log(eating_opt);
+                        var eating_filters = eating_opt.filter(e => e == eating_value);
+                        is_hit_eating = (eating_filters.length > 0);
+                    }
+
+                    // 食事区分条件
+                    var is_hit_meal = true;
+                    if (meal_opt.length > 0) {
+                        var meal_value = children[2].innerHTML;
+                        var meal_filters = meal_opt.filter(m => m == meal_value);
+                        is_hit_meal = (meal_filters.length > 0);
+                    }
+
+                    // 料理名条件
+                    var is_hit_plate = true;
+                    if (plate_opt.length > 0) {
+                        var plate_value = children[3].innerHTML;
+                        var plate_filters = plate_opt.filter(p => p == plate_value);
+                        is_hit_plate = (plate_filters.length > 0);
+                    }
+
+                    // 料理番号条件
+                    var is_hit_number = true;
+                    if (number_opt.length > 0) {
+                        var number_value = children[3].innerHTML[0];
+                        var number_filters = number_opt.filter(n => n == number_value);
+                        is_hit_number = (number_filters.length > 0);
+                    }
+
+                    // 献立種別条件
+                    var is_hit_menu = true;
+                    if (menu_opt.length > 0) {
+                        var menu_value = children[4].innerHTML;
+                        var menu_filters = menu_opt.filter(m => menu_value.includes(m));
+                        is_hit_menu = (menu_filters.length > 0);
+                    }
+
+                    // アレルギー条件
+                    var is_hit_allergen = true;
+                    if (allergen_opt.length > 0) {
+                        var allergen_value = children[6].innerHTML;
+                        var allergen_filters = allergen_opt.filter(a => allergen_value == a);
+                        is_hit_allergen = (allergen_filters.length > 0);
+                    }
+
+                    if (is_hit_eating == true && is_hit_meal == true && is_hit_plate == true &&
+                        is_hit_number == true && is_hit_menu == true && is_hit_allergen == true)
+                    {
+                        $(element).css('display', 'table-row');
+                        var cl = $(element).children('td')[5];
+                        var select_element = $(cl).children()[0];
+                        $(select_element).prop('disabled', false);
+                    } else {
+                        $(element).css('display', 'none');
+                        var cl = $(element).children('td')[5];
+                        var select_element = $(cl).children()[0];
+                        $(select_element).prop('disabled', true);
+                    }
+                }
+            });
+        };
+        $('#id_cond_eating_day, #id_cond_meal, #id_cond_plate, #id_cond_number, #id_menu, #id_cond_allergen').change(function() {
+            set_list_display();
+        });
+        $('#cond_reset').click(function(event){
+            $('#id_cond_eating_day option').prop("selected", false);
+            $('#id_cond_meal option').prop("selected", false);
+            $('#id_cond_plate option').prop("selected", false);
+            $('#id_cond_number option').prop("selected", false);
+            $('#id_menu option').prop("selected", false);
+            $('#id_cond_allergen option').prop("selected", false);
+
+            set_list_display();
+        });
+        $('.btn-row-add').click(function(event){
+            // tr要素の取得
+            var td_parent = $(this).parent()[0];
+            var tr_parent = $(td_parent).parent()[0];
+
+            // tbodyの子要素取得
+            var children = $('#relation-table-body').children();
+
+            var index = children.index(tr_parent);
+            var tr_clone = $(tr_parent).clone(true);
+
+            // コピー要素を未選択に変更
+            var ar_input = $(tr_clone).children()[5];
+            var ar_select = $(ar_input).children()[0];
+            var name = $(ar_select).attr('name');
+            $(ar_select).attr('name', name.replace('allergen_', 'allergen_new_'));
+            $(ar_select).val(0).change();
+
+            tr_clone.insertAfter(tr_parent);
+        });
+    };
+
+</script>
+{% endblock %}

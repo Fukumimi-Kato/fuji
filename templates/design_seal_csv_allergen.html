@@ -1,0 +1,47 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}パウチ用CSVファイル一覧{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">パウチ用CSVファイル一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <h2 class="mb-3">パウチ用CSVファイル一覧</h2>
+            </div>
+        </div><!-- end col -->
+    </div><!-- end row -->
+     <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+   <div class="card shadow mt-4 mb-3">
+        <div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                        <tr>
+                            <td><a href="{% url 'web_order:design_seal_files_allergen_basic'%}">基本食</a></td>
+                            <td><a href="{% url 'web_order:design_seal_files_allergen_soft'%}">ソフト</a></td>
+                            <td><a href="{% url 'web_order:design_seal_files_allergen_jelly'%}">ゼリー</a></td>
+                            <td><a href="{% url 'web_order:design_seal_files_allergen_mixer'%}">ミキサー</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>
+
+{% endblock %}

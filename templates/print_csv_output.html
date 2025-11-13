@@ -1,0 +1,106 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}P7印刷用登録{% endblock %}
+
+{% block overview %}P7印刷用登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">P7印刷用ファイル登録</li>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row px-3">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="card mb-3">
+        <h3 class="mx-3">献立登録</h3>
+        <h5 class="mx-2">らくらく献立から出力した、成分付の献立表をインポートしてください。</h5>
+        <div class="card-body">
+            <form method="POST" action="{% url 'web_order:p7_import'%}" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-4">
+                        <label class="fw-bold">基本食-通常</label>
+                        {{ formset.0.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">基本食-アレルギー</label>
+                        {{ formset.1.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">基本食-サンプル</label>
+                        {{ formset.2.as_p }}
+                    </div>
+
+                    <div class="col-4">
+                        <label class="fw-bold">ソフト-通常</label>
+                        {{ formset.3.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ソフト-アレルギー</label>
+                        {{ formset.4.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ソフト-サンプル</label>
+                        {{ formset.5.as_p }}
+                    </div>
+
+                    <div class="col-4">
+                        <label class="fw-bold">ゼリー-通常</label>
+                        {{ formset.6.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ゼリー-アレルギー</label>
+                        {{ formset.7.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ゼリー-サンプル</label>
+                        {{ formset.8.as_p }}
+                    </div>
+
+                    <div class="col-4">
+                        <label class="fw-bold">ミキサー-通常</label>
+                        {{ formset.9.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ミキサー-アレルギー</label>
+                        {{ formset.10.as_p }}
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold">ミキサー-サンプル</label>
+                        {{ formset.11.as_p }}
+                    </div>
+
+                </div>
+                <div class="row mt-3">
+                    <button type="submit" class="btn btn-primary">インポートする</button>
+                </div>
+                {{ formset.management_form }}
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <h3 class="mx-3">製造日別CSVファイル出力</h3>
+        <h5 class="mx-2">csvファイルを出力する製造日を指定してください。月間献立の登録と、計量表出力は先に実施してください。</h5>
+        <div class="card-body">
+            <form method="POST" action="{% url 'web_order:p7_csv_output'%}" enctype='multipart/form-data'>
+                {% csrf_token %}
+                {{ output_form.as_p }}
+                <div class="row mt-3">
+                    <button type="submit" class="btn btn-primary">出力する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

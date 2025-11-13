@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}すべての注文済みデータ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">すべての注文済みデータ</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mt-2">すべての注文済みデータ</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+
+<div class="card shadow mt-4 mb-3">
+    <div class="card-body px-4 pb-1 mt-2 mb-0 d-flex flex-row">
+        <div class="col-4">
+            <form action="{% url 'web_order:order_list' %}?prev={{ from_date|date:"Ymd" }}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">＜＜　前月　</button>
+            </form>
+        </div>
+        <div class="col-4">
+            <form action="{% url 'web_order:order_list' %}?this" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">今月分を表示する</button>
+            </form>
+        </div>
+        <div class="col-2">
+            <form action="{% url 'web_order:order_list' %}?next={{ from_date|date:"Ymd" }}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">　翌月　＞＞</button>
+            </form>
+        </div>
+        <div class="col-1">
+            {% if user.is_parent %}
+            <form action="{% url 'web_order:order_list' %}" method="POST">
+                {% csrf_token %}
+                {{ form.in_date }}
+                ～{{ form.out_date }}
+            {% else %}
+            <form action="{% url 'web_order:order_list' %}" method="POST">
+                {% csrf_token %}
+                {{ form.in_date }}
+            {% endif %}
+        </div>
+        <div class="col-1">
+            <button type="submit" class="btn btn-dark">表示</button>
+            </form>
+
+        </div>
+    </div>
+    {% if user.is_parent %}
+    <div class="card-body px-4 pt-1 mb-0 d-flex flex-row">
+        <div class="col-3">
+            <h4>合計金額：</h4>
+            <h3>{{total_sales |intcomma}}円(税別)</h3>
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                            日付毎合計：
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        {% for key, value in sales_dict.items %}
+                            <h3 class="collapse-item" >{{ key |date:"Y年m月d日"}}　{{value.0 |intcomma}}円({{value.1}}食)</h3>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-1">
+            <form action="{% url 'web_order:order_list_csv' %}" method="GET">
+                {% csrf_token %}
+                {{ csv_form.in_date.as_hidden }}
+                {{ csv_form.out_date.as_hidden }}
+                {% if unit_id %}
+                <input type="hidden" name="unit_id" value="{{ unit_id }}">
+                {% endif %}
+                <button  type="submit" class="btn btn-dark">csv出力</button>
+            </form>
+        </div>
+        <div class="col-3"></div>
+        <div class="col-3">
+            <form action="{% url 'web_order:order_unit' %}" method="GET">
+                {{ csv_form.in_date.as_hidden }}
+                {{ csv_form.out_date.as_hidden }}
+                <select class="form-control", id="unit_select" name="unit">
+                    <option value="0">--全ユニット--</option>
+                    {% for unit in unit_list %}
+                        {% if unit.0 == unit_id %}
+                        <option value="{{unit.0}}" selected>{{ unit.1 }}</option>
+                        {% else %}
+                        <option value="{{unit.0}}">{{ unit.1 }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </div>
+        <div class="col-1">
+                <button  type="submit" class="btn btn-dark">絞込</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    <div class="card-body">
+        <div class="table-responsive">
+            {% if user.is_parent %}
+            <table id="datatable-buttons-parent" class="table table-striped dt-responsive nowrap w-100">
+            {% else %}
+            <table id="datatable-buttons" class="table table-striped dt-responsive nowrap w-100">
+            {% endif %}
+
+                <thead>
+                    <tr>
+                        {% if user.is_parent %}
+                            <th>ユニット名</th>
+                            <th>売上日</th>
+                            <th>喫食日</th>
+                            <th>食事区分</th>
+                            <th>献立種類</th>
+                            <th>アレルギー種類</th>
+                            <th>食数</th>
+                            <th>単価</th>
+                            <th>金額</th>
+                        {% else %}
+                            <th>ユニット名</th>
+                            <th>喫食日</th>
+                            <th>食事区分</th>
+                            <th>献立種類</th>
+                            <th>アレルギー種類</th>
+                            <th>食数</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if user.is_parent %}
+                        {% for obj in object_list %}
+                        <tr class="row_display">
+                            <td>{{ obj.order.unit_name }}</td>
+                            <td>{{ obj.sales_day |date:"Y年m月d日" }}</td>
+                            <td>{{ obj.order.eating_day |date:"Y年m月d日" }}</td>
+                            <td>{{ obj.order.meal_name }}</td>
+                            <td>{{ obj.order.menu_name }}</td>
+                            <td>{{ obj.order.allergen }}</td>
+                            <td>{{ obj.order.quantity }}</td>
+                            <td>{{ obj.price }}</td>
+                            <td>{{ obj.sales |intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        {% for obj in object_list %}
+                        <tr class="row_display">
+                            <td>{{ obj.unit_name }}</td>
+                            <td>{{ obj.eating_day |date:"Y年m月d日" }}</td>
+                            <td>{{ obj.meal_name }}</td>
+                            <td>{{ obj.menu_name }}</td>
+                            <td>{{ obj.allergen }}</td>
+                            <td>{{ obj.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function set_list_display() {
+        var unit_opt = $('#unit_select').val();
+        $('.row_display').each(function(index, element) {
+            // 全部未選択なら全表示
+            if (unit_opt == '')
+            {
+                $(element).css('display', 'table-row');
+            } else {
+                var children = $(element).children();
+
+                // 条件
+                var is_hit = true;
+                if (unit_opt != "") {
+                    var value = children[0].innerHTML;
+                    is_hit = (value == unit_opt);
+                    console.log(unit_opt);
+                    console.log(value);
+                }
+                if (is_hit == true)
+                {
+                    $(element).css('display', 'table-row');
+                } else {
+                    $(element).css('display', 'none');
+                }
+            }
+        });
+    };
+    $('#unit_select').change(function() {
+        // set_list_display();
+    });
+
+</script>
+{% endblock %}

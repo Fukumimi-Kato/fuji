@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}仮注文後の食数変更{% endblock %}
+
+{% block overview %}仮注文後の食数変更{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">仮注文後の食数変更</li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">仮注文後の食数変更</h4>
+                <p class="sub-header">
+                    &nbsp
+                </p>
+
+                <form method="POST" enctype='multipart/form-data'>
+
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <h4>{{ form.quantity.errors }}</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-2 col-md-6">
+                            <label class="form-label" for="{{ form.unit_name.id_for_label }}">{{ form.unit_name.label }}:</label>
+                        </div>
+                        <div class="mb-2 col-md-6">
+                            {{ form.unit_name.as_hidden }}{{ object.unit_name }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-2 col-md-6">
+                            <label class="form-label" for="{{ form.eating_day.id_for_label }}">{{ form.eating_day.label }}:</label>
+                        </div>
+                        <div class="mb-2 col-md-6">
+                            {{ form.eating_day.as_hidden }}{{ object.eating_day }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-2 col-md-6">
+                            <label class="form-label" for="{{ form.meal_name.id_for_label }}">{{ form.meal_name.label }}:</label>
+                        </div>
+                        <div class="mb-2 col-md-6">
+                            {{ form.meal_name.as_hidden }}{{ object.meal_name }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-2 col-md-6">
+                            <label class="form-label" for="{{ form.menu_name.id_for_label }}">{{ form.menu_name.label }}:</label>
+                        </div>
+                        <div class="mb-2 col-md-6">
+                            {{ form.menu_name.as_hidden }}{{ object.menu_name }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-2 col-md-10">
+                            {{ form.quantity.label_tag }}
+                        </div>
+                        <div class="mb-2 col-md-2">
+                            {{ form.quantity }}
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">修正内容を送信する</button>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="btn btn-secondary ml-2" href="{% url 'web_order:order_change_list'%}">キャンセル</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+
+<script>
+/*
+const inputs = document.getElementsByTagName('input')
+
+function getActiveElement() {
+    alert(document.activeElement.value);
+}
+
+Array.from(inputs).forEach(input =>{
+    input.addEventListener('mouseup', getActiveElement, false)
+})
+
+*/
+</script>
+
+{% endblock %}

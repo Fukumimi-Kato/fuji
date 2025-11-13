@@ -1,0 +1,393 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}ピッキング指示書出力{% endblock %}
+
+{% block overview %}ピッキング指示書出力{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">ピッキング指示書出力</li>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row">
+    <div class="card-header py-1 messages" id="message_area">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <form id="upd_form" method="POST" enctype='multipart/form-data'>
+                    {% csrf_token %}
+
+                    {{ form.cooking_date.label }}
+                    {{ form.cooking_date }}
+                    <div class="my-2"/>
+                    {{ form.chiller_1_unit_from.label }}
+                    <div class="row">
+                        <div class="col-4">
+                            {{ form.chiller_1_unit_from }}{{ form.chiller_1_unit_from.errors }}
+                        </div>
+                        <div class="col-1">
+                            <label>～</label>
+                        </div>
+                        <div class="col-4">
+                            {{ form.chiller_1_unit_to }}{{ form.chiller_1_unit_to.errors }}
+                        </div>
+                    </div>
+                    {{ form.chiller_2_unit_from.label }}
+                    <div class="row">
+                        <div class="col-4">
+                            {{ form.chiller_2_unit_from }}{{ form.chiller_2_unit_from.errors }}
+                        </div>
+                        <div class="col-1">
+                            <label>～</label>
+                        </div>
+                        <div class="col-4">
+                            {{ form.chiller_2_unit_to }}{{ form.chiller_2_unit_to.errors }}
+                        </div>
+                    </div>
+                    {{ form.chiller_3_unit_from.label }}
+                    <div class="row">
+                        <div class="col-4">
+                            {{ form.chiller_3_unit_from }}{{ form.chiller_3_unit_from.errors }}
+                        </div>
+                        <div class="col-1">
+                            <label>～</label>
+                        </div>
+                        <div class="col-4">
+                            {{ form.chiller_3_unit_to }}{{ form.chiller_3_unit_to.errors }}
+                        </div>
+                    </div>
+                    {{ form.chiller_4_unit_from.label }}
+                    <div class="row">
+                        <div class="col-4">
+                            {{ form.chiller_4_unit_from }}{{ form.chiller_4_unit_from.errors }}
+                        </div>
+                        <div class="col-1">
+                            <label>～</label>
+                        </div>
+                        <div class="col-4">
+                            {{ form.chiller_4_unit_to }}{{ form.chiller_4_unit_to.errors }}
+                        </div>
+                    </div>
+                    {{ form.output_type.label }}
+                    {{ form.output_type }}
+
+                    <div class="row mt-3">
+                        <button id="btn_output" type="button" class="btn btn-primary" onclick="set_cookie();post_sample()">出力する</button>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="btn btn-secondary ml-2" href="{% url 'web_order:control_panel'%}">キャンセル</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    function set_cookie(){
+        console.log("set_cookie");
+        document.cookie="chiller-1-from=" + $('#id_chiller_1_unit_from').val() + "; Max-Age=864000";
+        document.cookie="chiller-1-to=" + $('#id_chiller_1_unit_to').val() + "; Max-Age=864000";
+
+        document.cookie="chiller-2-from=" + $('#id_chiller_2_unit_from').val() + "; Max-Age=864000";
+        document.cookie="chiller-2-to=" + $('#id_chiller_2_unit_to').val() + "; Max-Age=864000";
+
+        document.cookie="chiller-3-from=" + $('#id_chiller_3_unit_from').val() + "; Max-Age=864000";
+        document.cookie="chiller-3-to=" + $('#id_chiller_3_unit_to').val() + "; Max-Age=864000";
+
+        document.cookie="chiller-4-from=" + $('#id_chiller_4_unit_from').val() + "; Max-Age=864000";
+        document.cookie="chiller-4-to=" + $('#id_chiller_4_unit_to').val() + "; Max-Age=864000";
+    };
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    function post_sample()
+    {
+        console.log("start_ajax");
+        var csrf_token = getCookie("csrftoken");
+        if ($('#id_output_type').val()=="00") {
+            console.log("ajax通信開始しました");
+            $('#message_area').append('<p class="p-2 m-1 alert alert-alert alert-warning">ピッキング指示書出力中。。。</p>');
+            $('#btn_output').prop("disabled", true);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'web_order:picking_output' %}",
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                data: {
+                    "cooking_date": $('#id_cooking_date').val(),
+                    "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                    "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                    "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                    "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                    "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                    "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                    "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                    "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                    "output_type": "011",
+                },
+               beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                    }
+                },
+                dataType:"html",
+                success:function(res) {
+                    console.log("基本食終了");
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'web_order:picking_output' %}",
+                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                        data: {
+                            "cooking_date": $('#id_cooking_date').val(),
+                            "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                            "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                            "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                            "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                            "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                            "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                            "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                            "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                            "output_type": "012",
+                        },
+                       beforeSend: function(xhr, settings) {
+                            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                            }
+                        },
+                        dataType:"html",
+                        success:function(res) {
+                            console.log("基本終了2");
+
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'web_order:picking_output' %}",
+                                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                data: {
+                                    "cooking_date": $('#id_cooking_date').val(),
+                                    "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                                    "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                                    "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                                    "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                                    "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                                    "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                                    "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                                    "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                                    "output_type": "013",
+                                },
+                               beforeSend: function(xhr, settings) {
+                                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                                    }
+                                },
+                                dataType:"html",
+                                success:function(res) {
+                                    console.log("基本終了3");
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{% url 'web_order:picking_output' %}",
+                                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                        data: {
+                                            "cooking_date": $('#id_cooking_date').val(),
+                                            "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                                            "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                                            "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                                            "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                                            "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                                            "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                                            "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                                            "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                                            "output_type": "014",
+                                        },
+                                       beforeSend: function(xhr, settings) {
+                                            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                                            }
+                                        },
+                                        dataType:"html",
+                                        success:function(res) {
+                                    console.log("基本終了4");
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{% url 'web_order:picking_output' %}",
+                                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                        data: {
+                                            "cooking_date": $('#id_cooking_date').val(),
+                                            "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                                            "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                                            "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                                            "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                                            "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                                            "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                                            "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                                            "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                                            "output_type": "02",
+                                        },
+                                       beforeSend: function(xhr, settings) {
+                                            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                                            }
+                                        },
+                                        dataType:"html",
+                                        success:function(res) {
+
+                                    console.log("嚥下終了");
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{% url 'web_order:picking_output' %}",
+                                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                        data: {
+                                            "cooking_date": $('#id_cooking_date').val(),
+                                            "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                                            "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                                            "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                                            "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                                            "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                                            "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                                            "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                                            "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                                            "output_type": "03",
+                                        },
+                                       beforeSend: function(xhr, settings) {
+                                            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                                            }
+                                        },
+                                        dataType:"html",
+                                        success:function(res) {
+                                    console.log("汁・汁具終了");
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "{% url 'web_order:picking_output' %}",
+                                        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+                                        data: {
+                                            "cooking_date": $('#id_cooking_date').val(),
+                                            "chiller_1_unit_from": $('#id_chiller_1_unit_from').val(),
+                                            "chiller_1_unit_to": $('#id_chiller_1_unit_to').val(),
+
+                                            "chiller_2_unit_from": $('#id_chiller_2_unit_from').val(),
+                                            "chiller_2_unit_to": $('#id_chiller_2_unit_to').val(),
+
+                                            "chiller_3_unit_from": $('#id_chiller_3_unit_from').val(),
+                                            "chiller_3_unit_to": $('#id_chiller_3_unit_to').val(),
+
+                                            "chiller_4_unit_from": $('#id_chiller_4_unit_from').val(),
+                                            "chiller_4_unit_to": $('#id_chiller_4_unit_to').val(),
+
+                                            "output_type": "04",
+                                        },
+                                       beforeSend: function(xhr, settings) {
+                                            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                                                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                                            }
+                                        },
+                                        dataType:"html",
+                                        success:function(res) {
+                                                                    $('#message_area').children().remove();
+                                                                    $('#message_area').append('<p class="p-2 m-1 alert alert-alert alert-success">出力が完了しました</p>');
+                                                                    $('#btn_output').prop("disabled", false);
+                                        },
+                                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                                            alert("失敗しました");
+                                        },
+                                    });
+                                        },
+                                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                                            alert("失敗しました");
+                                        },
+                                    });
+                                        },
+                                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                                            alert("失敗しました");
+                                        },
+                                    });
+                                        },
+                                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                                            alert("失敗しました");
+                                        },
+                                    });
+
+                                },
+                                error:function(XMLHttpRequest, textStatus, errorThrown){
+                                    alert("失敗しました");
+                                },
+                            });
+                        },
+                        error:function(XMLHttpRequest, textStatus, errorThrown){
+                            alert("失敗しました");
+                        },
+                    });
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("失敗しました");
+                },
+            });
+        } else {
+            // 通常のPOST送信
+            var frm = $('#upd_form');
+            (frm).submit();
+        }
+    }
+</script>
+{% endblock %}

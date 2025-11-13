@@ -1,0 +1,92 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}注文停止・ログイン停止予約更新{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">注文停止・ログイン停止予約更新</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">注文停止・ログイン停止予約更新</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+
+<div class="container-fluid my-0">
+    <form method='POST' enctype='multipart/form-data'>
+    {% csrf_token %}
+    <h3>注文停止日：</h3>
+    <div class="card shadow mt-4 mb-3">
+        <div class="card-body px-4 mt-2 mb-0">
+            <div class="table-responsive">
+                <table class="table table-striped dt-responsive nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>ユニット名</th>
+                            <th>運用状態</th>
+                            <th>注文停止予約日(注文不可となる初日喫食日)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for unit in unit_list %}
+                        <tr>
+                            <td>{{unit.unit.unit_number}}.{{unit.unit.unit_name}}</td>
+                            <td>
+                                {% if unit.unit.is_active %}
+                                    運用中
+                                {% else %}
+                                    注文停止中
+                                {% endif %}
+                            </td>
+                            <td>
+                                <input class="form-control" name="order_stop_{{unit.unit.id}}" type="date"
+                                       min="{{ today |date:'Y-m-d' }}"
+                                {% if unit.reservation %}
+                                       value="{{ unit.reservation |date:'Y-m-d' }}"
+                                {% endif %}
+                                {% if unit.unit.is_active %}
+                                {% else %}
+                                       readonly
+                                {% endif %}
+                                />
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <h3>ログイン停止開始日（施設側閲覧不可となる初日）：</h3>
+    <div class="row">
+        <div class="col-3">
+            <input class="form-control" name="login_stop" type="date" min="{{ today |date:'Y-m-d' }}"
+            {% if login_stop %}
+                   value="{{ login_stop |date:'Y-m-d' }}"
+            {% endif %}
+            />
+        </div>
+        <div class="col-9"></div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-1">更新する</button>
+    <a class="btn btn-secondary ml-2 mt-1" href="{% url 'web_order:stop_reservations' %}">キャンセル</a>
+
+    </form>
+</div>
+{% endblock %}

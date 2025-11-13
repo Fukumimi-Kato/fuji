@@ -1,0 +1,99 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block title %}請求データ履歴一覧{% endblock %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">請求データ履歴一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">請求データ履歴一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <form method="GET" enctype='multipart/form-data'>
+                <div class="card shadow row">
+                    <div class="col-12 pb-2 px-0">
+                        <div class="card-header py-1">
+                            <h3>検索条件:</h3>
+                        </div>
+                    </div>
+                    <div class="card-body col-3 pb-2 px-0">
+                        <h5>取引先：</h5>
+                        <div>
+                            {{ form.unit_name }}{{ form.unit_name.errors }}
+                        </div>
+                    </div>
+                    <div class="card-body col-3 pb-2 px-0">
+                        <h5>期間：</h5>
+                        <div>
+                            {{ form.from_date }}{{ form.from_date.errors }}～{{ form.to_date }}{{ form.to_date.errors }}
+                        </div>
+                    </div>
+                    <div class="card-body col-3 pb-2 px-0">
+                        <h5>売上：</h5>
+                        <div>
+                            {{ form.from_sales }}{{ form.from_sales.errors }}～{{ form.to_sales }}{{ form.to_sales.errors }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div> <!-- end row -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card shadow mb-3">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered small nowrap" id="basic-datatable">
+                            <thead>
+                                <tr>
+                                    <th>売上日</th>
+                                    <th>得意先コード</th>
+                                    <th>得意先名</th>
+                                    <th>商品名</th>
+                                    <th>売上単価</th>
+                                    <th>売上数量</th>
+                                    <th>売上額</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in object_list %}
+                                <tr>
+                                    <td>{{ obj.sale_day |date:"Y年n月j日" }}</td>
+                                    <td>{{ obj.unit_code }}</td>
+                                    <td>{{ obj.calc_name }}</td>
+                                    <td>{{ obj.item_name }}</td>
+                                    <td>{{ obj.sales_unit_price }}</td>
+                                    <td>{{ obj.sales_quantity }}</td>
+                                    <td>{{ obj.sales }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- end table responsive-->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>
+{% endblock %}

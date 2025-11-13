@@ -1,0 +1,60 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% block title %}変換後調理表一覧{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item active" xmlns="http://www.w3.org/1999/html">変換後調理表一覧</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">変換後調理表一覧</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="card-header py-1 messages">
+            {% if messages %}
+                {% for message in messages %}
+                    <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                <p class="p-2 m-1">　</p>
+            {% endif %}
+        </div>
+    </div> <!-- end row -->
+    <div class="row mb-2">
+        <form method="GET">
+            <p class='col-4'>
+                <select name="direction_type" class="form-control col-xl-6 mb-1">
+                    <option value="normal" class="form-control" {% if direction_type == "normal" %} selected {% endif %}>通常</option>
+                    <option value="filter" class="form-control" {% if direction_type == "filter" %} selected {% endif %}>常食・薄味別</option>
+                </select>
+                <button type="submit" class="btn btn-primary col-xl-6">検索</button>
+            </p>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mt-3">
+                        <table>
+                            <tr>
+                            {% for file in cooking_files %}
+                                <td><a href="{{ cooking_url }}/{{ file }}">{{ file }}</a></td>
+                                {%if forloop.counter|divisibleby:"3" %}
+                                    </tr><tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+                        </table>
+                    </div> <!-- end table responsive-->
+                </div> <!-- end card-body -->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div> <!-- end row -->
+</div>
+{% endblock %}

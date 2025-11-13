@@ -1,0 +1,53 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}献立資料登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">献立資料登録</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">献立資料登録</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    対象年：
+                    {{ form.year | add_class:"mb-1" }}
+                    対象月:
+                    {{ form.month | add_class:"mb-1" }}
+                    zipファイル:
+                    {{ form.document_file }}
+                    <div class="row mt-3">
+                        <button type="submit" class="btn btn-primary">登録する</button>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="btn btn-secondary ml-2" href="{% url 'web_order:control_panel'%}">キャンセル</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+
+{% endblock %}

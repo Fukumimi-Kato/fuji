@@ -1,0 +1,881 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}売価情報管理{% endblock %}
+
+{% block overview %}
+<div><h2>売価情報管理</h2></div>
+<div><h3 class="text-danger">※本画面では月単位の集計結果を出力します。</h3></div>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">売価情報管理</li>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form method="GET" enctype='multipart/form-data'>
+                <div class="row">
+                    <div class="card shadow col-3 pb-2 px-0">
+                        <div class="card-header py-1">
+                            <h3>検索条件:</h3>
+                        </div>
+                        <div class="card-body py-1">
+                            <h5>期間：</h5>
+                            <div>
+                                {{ form.from_date }}{{ form.from_date.errors }}～{{ form.to_date }}{{ form.to_date.errors }}
+                            </div>
+                            <h5>月間売上：</h5>
+                            <div>
+                                {{ form.from_sales }}{{ form.from_sales.errors }}～{{ form.to_sales }}{{ form.to_sales.errors }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow col-9 pb-2 px-0">
+                        <div class="card-header py-1">
+                            <h3>抽出条件:</h3>
+                        </div>
+                        <div class="card-body py-1">
+                            <div class="row">
+                                <div class="col-3">
+                                    <h5>抽出区分:</h5>
+                                    <div>
+                                        {{ form.display_item_group }}{{ form.display_item_group.errors }}
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <h5>食事区分:</h5>
+                                    <div>
+                                        {{ form.display_meal_group }}{{ form.display_meal_group.errors }}
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <h5>出力項目:</h5>
+                                    <div>
+                                        {{ form.display_output_group }}{{ form.display_output_group.errors }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a href="#withoutsoup" class="nav-link active" data-bs-toggle="tab">汁の売上を除く</a>
+            </li>
+            <li class="nav-item">
+              <a href="#includesoup" class="nav-link" data-bs-toggle="tab">汁の売上を含める</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="withoutsoup" class="tab-pane active">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card card-shadow px-2">
+                            <h4>期間中の配送料(日割り換算):{{t1.transport_total |floatformat:2|escape|intcomma}}</h4>
+                            <h4>期間中の1日あたり平均配送料:{{t1.average_transport |floatformat:2|escape|intcomma}}</h4>
+                            <h4>食事区分別配送料:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th scope="col">朝食</th>
+                                        <th scope="col">昼食</th>
+                                        <th scope="col">夕食</th>
+                                        <th scope="col">合計</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{t1.meal_transport_b |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.meal_transport_l |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.meal_transport_d |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.meal_transport_t |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card card-shadow px-2">
+                            <h4>期間中の1日あたり平均売価:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th scope="col">送料込み</th>
+                                        <th scope="col">送料除く</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{t1.average_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.average_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h4>期間中の1日あたり単純平均売価:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th></th>
+                                        <th scope="col">送料込み</th>
+                                        <th scope="col">送料除く</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">基本食・個食・フリーズのみ</th>
+                                        <td>{{t1.simple_average_basic_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.simple_average_basic_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">嚥下</th>
+                                        <td>{{t1.simple_average_enge_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.simple_average_enge_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">全体</th>
+                                        <td>{{t1.simple_average_total_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t1.simple_average_total_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-bordered small border-primary">
+                        <thead>
+                            <tr class="bg-light">
+                                <th rowspan="2">年月</th>
+                                <th rowspan="2">区分</th>
+                                {% if is_show_count %}
+                                    <th colspan="{{t1.part_column_count}}">食数</th>
+                                {% endif %}
+                                {% if is_show_sales %}
+                                    <th colspan="{{t1.part_column_count}}">売上</th>
+                                {% endif %}
+                                {% if is_show_ave_include %}
+                                    <th colspan="{{t1.part_column_count}}">1食あたり平均売価(配送料込み)</th>
+                                {% endif %}
+                                {% if is_show_ave_without %}
+                                    <th colspan="{{t1.part_column_count}}">1食あたり平均売価(配送料除く)</th>
+                                {% endif %}
+                            </tr>
+                            <tr class="bg-light">
+                                {% if is_show_count %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_sales %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_ave_include %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_ave_without %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                            </tr>
+                        </thead>
+                            <tbody>
+                                {% for price in t1.price_list %}
+                                {# 朝食 #}
+                                {% if is_show_basic %}
+                                <tr>
+                                    {% if is_show_enge %}
+                                        <th rowspan="3">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% else %}
+                                        <th rowspan="2">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% endif %}
+                                    <th>基本食・個食・フリーズのみ</th>
+
+                                    {# 食数-嚥下以外 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.price.basic_breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.price.basic_lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.price.basic_dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-嚥下以外 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.basic_breakfast_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.basic_lunch_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.basic_dinner_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.basic_sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(配送料込み)-嚥下以外 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.basic_breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.basic_lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.basic_dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(配送料込み)-嚥下以外 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.basic_breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.basic_lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.basic_dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% if is_show_enge %}
+                                <tr class="seles_manage_en">
+                                    {% if is_show_basic %}
+                                    {% else %}
+                                        <th rowspan="2">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% endif %}
+                                    <th>嚥下</th>
+
+                                    {# 食数-嚥下 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.enge_breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.enge_lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.enge_dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-嚥下 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.enge_breakfast_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.enge_lunch_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.enge_dinner_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-嚥下 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.enge_breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.enge_lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.enge_dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-嚥下 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.enge_breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.enge_lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.enge_dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% if is_show_total %}
+                                <tr class="seles_manage_to">
+                                    <th>全体</th>
+
+                                    {# 食数-合計 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-合計 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-合計 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.total_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料別)-合計 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.total_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="includesoup" class="tab-pane">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card card-shadow px-2">
+                            <h4>期間中の配送料(日割り換算):{{t2.transport_total |floatformat:2|escape|intcomma}}</h4>
+                            <h4>期間中の1日あたり平均配送料:{{t2.average_transport |floatformat:2|escape|intcomma}}</h4>
+                            <h4>食事区分別配送料:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th scope="col">朝食</th>
+                                        <th scope="col">昼食</th>
+                                        <th scope="col">夕食</th>
+                                        <th scope="col">合計</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{t2.meal_transport_b |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.meal_transport_l |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.meal_transport_d |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.meal_transport_t |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card card-shadow px-2">
+                            <h4>期間中の1日あたり平均売価:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th scope="col">送料込み</th>
+                                        <th scope="col">送料除く</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{t2.average_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.average_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h4>期間中の1日あたり単純平均売価:</h4>
+                            <table class="table">
+                                <thead>
+                                    <tr class="table-success">
+                                        <th></th>
+                                        <th scope="col">送料込み</th>
+                                        <th scope="col">送料除く</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">基本食・個食・フリーズのみ</th>
+                                        <td>{{t2.simple_average_basic_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.simple_average_basic_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">嚥下</th>
+                                        <td>{{t2.simple_average_enge_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.simple_average_enge_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">全体</th>
+                                        <td>{{t2.simple_average_total_include |floatformat:2|escape|intcomma}}</td>
+                                        <td>{{t2.simple_average_total_without |floatformat:2|escape|intcomma}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-bordered small border-primary">
+                        <thead>
+                            <tr class="bg-light">
+                                <th rowspan="2">年月</th>
+                                <th rowspan="2">区分</th>
+                                {% if is_show_count %}
+                                    <th colspan="{{t2.part_column_count}}">食数</th>
+                                {% endif %}
+                                {% if is_show_sales %}
+                                    <th colspan="{{t2.part_column_count}}">売上</th>
+                                {% endif %}
+                                {% if is_show_ave_include %}
+                                    <th colspan="{{t2.part_column_count}}">1食あたり平均売価(配送料込み)</th>
+                                {% endif %}
+                                {% if is_show_ave_without %}
+                                    <th colspan="{{t2.part_column_count}}">1食あたり平均売価(配送料除く)</th>
+                                {% endif %}
+                            </tr>
+                            <tr class="bg-light">
+                                {% if is_show_count %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_sales %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_ave_include %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                                {% if is_show_ave_without %}
+                                    {% if is_show_breakfast %}
+                                        <th>朝食</th>
+                                    {% endif %}
+                                    {% if is_show_lunch %}
+                                        <th>昼食</th>
+                                    {% endif %}
+                                    {% if is_show_dinner %}
+                                        <th>夕食</th>
+                                    {% endif %}
+                                    {% if is_show_sum %}
+                                        <th>合計</th>
+                                    {% endif %}
+                                {% endif %}
+                            </tr>
+                        </thead>
+                            <tbody>
+                                {% for price in t2.price_list %}
+                                {# 朝食 #}
+                                {% if is_show_basic %}
+                                <tr>
+                                    {% if is_show_enge %}
+                                        <th rowspan="3">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% else %}
+                                        <th rowspan="2">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% endif %}
+                                    <th>基本食・個食・フリーズのみ</th>
+
+                                    {# 食数-嚥下以外 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.price.basic_breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.price.basic_lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.price.basic_dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-嚥下以外 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.basic_breakfast_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.basic_lunch_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.basic_dinner_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.basic_sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(配送料込み)-嚥下以外 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.basic_breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.basic_lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.basic_dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(配送料込み)-嚥下以外 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td class="seles_manage_ba">{{price.basic_breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td class="seles_manage_ba">{{price.basic_lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td class="seles_manage_ba">{{price.basic_dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td class="seles_manage_ba">{{price.basic_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% if is_show_enge %}
+                                <tr class="seles_manage_en">
+                                    {% if is_show_basic %}
+                                    {% else %}
+                                        <th rowspan="2">
+                                            {{price.price.year}}年{{price.price.month}}月
+                                            {% if price.is_updated %}
+                                                (集計中)
+                                            {% endif %}
+                                        </th>
+                                    {% endif %}
+                                    <th>嚥下</th>
+
+                                    {# 食数-嚥下 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.enge_breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.enge_lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.enge_dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-嚥下 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.price.enge_breakfast_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.price.enge_lunch_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.price.enge_dinner_sales |floatformat|escape|intcomma }}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-嚥下 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.enge_breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.enge_lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.enge_dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-嚥下 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.enge_breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.enge_lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.enge_dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.enge_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% if is_show_total %}
+                                <tr class="seles_manage_to">
+                                    <th>全体</th>
+
+                                    {# 食数-合計 #}
+                                    {% if is_show_count %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_count}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.count_total}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 売上-合計 #}
+                                    {% if is_show_sales %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_sales |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.sales_total |floatformat|escape|intcomma}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料込み)-合計 #}
+                                    {% if is_show_ave_include %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.total_average_include |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {# 平均売価(送料別)-合計 #}
+                                    {% if is_show_ave_without %}
+                                        {% if is_show_breakfast %}
+                                            <td>{{price.breakfast_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_lunch %}
+                                            <td>{{price.lunch_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_dinner %}
+                                            <td>{{price.dinner_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                        {% if is_show_sum %}
+                                            <td>{{price.total_average_without |floatformat:2}}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}施設情報登録{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">施設情報登録</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">施設情報登録</h2>
+            <h4>既存の施設の親会社でもある、下記の会社の請求書確認用のユーザ情報を登録します。登録してよろしいでしょうか?</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<form action="{% url 'web_order:user_create_confirm'%}" method="POST" enctype='multipart/form-data'>
+{% csrf_token %}
+{% for input in inputs %}
+    <input type="hidden" name="inputid" value="{{input}}" />
+{% endfor %}
+{% for object in object_list %}
+<div class="row mt-1">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ object.name }}</h5>
+                {% for facility in object.facilities %}
+                    <div class="px-2">{{ facility }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+{% endfor %}
+<div class="row mt-1">
+    <div class="col-xl-3"></div>
+    <div class="col-xl-6">
+        <button type="submit" class="btn btn-primary">登録する</button>
+        <a class="btn btn-secondary ml-2" href="{% url 'web_order:user_masters'%}">キャンセル</a>
+    </div>
+    <div class="col-xl-3"></div>
+</div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}長期休暇マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">長期休暇マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">長期休暇マスタ確認</h2>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:long_holidays_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>休暇種別</th>
+                        <th>開始日</th>
+                        <th>終了日</th>
+                        <th>入力締め切り日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:long_holidays_update' obj.pk %}">{{ obj.holiday_name }}</a></td>
+                        <td>{{ obj.start_date |date:"Y年m月d日" }}</td>
+                        <td>{{ obj.end_date |date:"Y年m月d日" }}</td>
+                        <td>{{ obj.limit_day |date:"Y年m月d日" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

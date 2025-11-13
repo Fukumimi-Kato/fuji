@@ -1,0 +1,71 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}アレルギー種類マスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">アレルギー種類マスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">アレルギー種類マスタ確認</h2>
+            <h4>頻発アレルギーは
+                <a href="{% url 'web_order:common_allergens'%}" class="text-decoration-underline" target="_blank">こちら</a>
+                から、らくらく献立上の登場順を設定してください。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:allergen_master_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>アレルギー種類名</th>
+                        <th>表示順</th>
+                        <th>アレルギー種類</th>
+                        <th>かな名</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:allergen_master_update' obj.pk %}">{{ obj.allergen_name }}</a></td>
+                        <td>{{ obj.seq_order }}</td>
+                        {% if obj.is_common %}
+                            <td><div class="text-danger">頻発</div></td>
+                        {% else %}
+                            <td>散発</td>
+                        {% endif %}
+                        {% if obj.kana_name %}
+                            <td>{{ obj.kana_name }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base_master.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}混ぜご飯袋サイズマスタ{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active">混ぜご飯袋サイズマスタ確認</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center">
+            <h2 class="mb-3">混ぜご飯袋サイズマスタ確認</h2>
+            <h4>どの料理を混ぜご飯とするかの設定は、
+                <a href="{% url 'web_order:mix_rice_plates' %}" class="text-decoration-underline" target="_blank">こちら</a>から
+                行えます。</h4>
+        </div>
+    </div><!-- end col -->
+</div><!-- end row -->
+<div class="row">
+    <div class="card-header py-1 messages">
+        {% if messages %}
+            {% for message in messages %}
+                <p{% if message.tags %} class="p-2 m-1 alert alert-{{ message.tags }}"{% endif %}>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<button class="btn btn-primary" type=“button” onclick="location.href='{% url 'web_order:mix_rice_package_create' %}'">新規作成</button>
+
+    <div class="card shadow mb-3">
+    <div class="card-body">
+        <div class="table-responsive">
+
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>献立・料理名</th>
+                        <th>1袋あたりの量(g)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                    <tr>
+                        <td><a href="{% url 'web_order:mix_rice_package_update' obj.pk %}">{{ obj.parts_name }}</a></td>
+                        <td>{{ obj.package_size }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
