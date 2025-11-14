@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
 from django.core.validators import FileExtensionValidator, MinValueValidator
+from django.forms.widgets import ClearableFileInput
 
 from accounts.models import User
 from .date_management import SalesDayUtil
@@ -18,6 +19,9 @@ from .models import AggMeasureSoupMaster, AggMeasureMixRiceMaster, RawPlatePacka
 
 class DateInput2(forms.DateInput):
     input_type = 'date'
+
+class MultipleClearableFileInput(ClearableFileInput):
+    allow_multiple_selected = True
 
 
 class OrderForm(forms.ModelForm):
@@ -438,7 +442,7 @@ class DocumentCheckForm(forms.ModelForm):
 class DocumentsUploadForm(forms.ModelForm):
 
     document_file = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'accept': '.zip'}),
+        widget=MultipleClearableFileInput(attrs={'accept': '.zip'}),
     )
 
     class Meta:
@@ -454,7 +458,7 @@ class DocumentsUploadForm(forms.ModelForm):
 class InvoiceFilesForm(forms.ModelForm):
 
     document_file = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'multiple': True}),
+        widget=MultipleClearableFileInput(attrs={'multiple': True}),
     )
 
     class Meta:
